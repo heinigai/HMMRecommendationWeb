@@ -25,6 +25,8 @@ firebase init # 选择 Hosting -- 已有项目 -- 不创建单页应用 github
 
 # 部署 push代码或merge代码到main分支通过action会自动部署
 
+#firebase deploy
+
 ```
 
 ### 允许的账号
