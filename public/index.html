@@ -20,7 +20,6 @@
         <thead>
             <tr>
                 <th>股票代码</th>
-                <th>股票名称</th>
                 <th>买入价格</th>
                 <th>止盈价格</th>
                 <th>止损价格</th>
@@ -38,7 +37,6 @@
         // 1. 导入需要的函数（Realtime Database核心函数）
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
 
         // 2. 你的Firebase配置（直接用官方给的，无需修改）
         const firebaseConfig = {
@@ -54,7 +52,6 @@
 
         // 3. 初始化Firebase（模块化写法）
         const app = initializeApp(firebaseConfig);
-<!--        const analytics = getAnalytics(app); // 可选， analytics 功能-->
         const db = getDatabase(app); // 初始化Realtime Database实例（关键！替换旧版的firebase.database()）
 
         // 4. 验证SDK加载成功（控制台打印，可删除）
