@@ -48,9 +48,16 @@
           appId: "1:746210099239:web:6b72d2ef5e044b09a04e02",
           measurementId: "G-HECR0FG996"
         };
+        console.log("firebase 对象是否存在：", typeof firebase);
+        try {
+          firebase.initializeApp(firebaseConfig);
+          console.log("初始化成功！");
+        } catch (err) {
+          console.log("初始化失败：", err.message); // 打印具体错误信息
+        }
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<!--        firebase.initializeApp(firebaseConfig);-->
+<!--        const db = firebase.database();-->
 
         // 读取股票推荐数据
         function loadStockRecommendations() {
