@@ -29,46 +29,50 @@
         </thead>
         <tbody id="stock-list">
             <!-- 数据将通过JS动态填充 -->
+            <tr><td colspan="6" style="text-align:center">加载中...</td></tr>
         </tbody>
     </table>
 
-    <!-- 引入Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+    <!-- 模块化导入 Firebase SDK + 完整逻辑 -->
+    <script type="module">
+        // 1. 导入需要的函数（Realtime Database核心函数）
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
 
-    <script>
-        // 初始化Firebase
+        // 2. 你的Firebase配置（直接用官方给的，无需修改）
         const firebaseConfig = {
-          apiKey: "AIzaSyDHd6LoUOSlDm-Nj6c8NSXdtGw5HvPi3I4",
-          authDomain: "qtrader-3fd6b.firebaseapp.com",
-          databaseURL: "https://qtrader-3fd6b-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "qtrader-3fd6b",
-          storageBucket: "qtrader-3fd6b.firebasestorage.app",
-          messagingSenderId: "746210099239",
-          appId: "1:746210099239:web:6b72d2ef5e044b09a04e02",
-          measurementId: "G-HECR0FG996"
+            apiKey: "AIzaSyDHd6LoUOSlDm-Nj6c8NSXdtGw5HvPi3I4",
+            authDomain: "qtrader-3fd6b.firebaseapp.com",
+            databaseURL: "https://qtrader-3fd6b-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "qtrader-3fd6b",
+            storageBucket: "qtrader-3fd6b.firebasestorage.app",
+            messagingSenderId: "746210099239",
+            appId: "1:746210099239:web:6b72d2ef5e044b09a04e02",
+            measurementId: "G-HECR0FG996"
         };
-        console.log("firebase 对象是否存在：", typeof firebase);
-        try {
-          firebase.initializeApp(firebaseConfig);
-          console.log("初始化成功！");
-        } catch (err) {
-          console.log("初始化失败：", err.message); // 打印具体错误信息
-        }
 
-<!--        firebase.initializeApp(firebaseConfig);-->
-<!--        const db = firebase.database();-->
+        // 3. 初始化Firebase（模块化写法）
+        const app = initializeApp(firebaseConfig);
+<!--        const analytics = getAnalytics(app); // 可选， analytics 功能-->
+        const db = getDatabase(app); // 初始化Realtime Database实例（关键！替换旧版的firebase.database()）
 
-        // 读取股票推荐数据
+        // 4. 验证SDK加载成功（控制台打印，可删除）
+        console.log("Firebase初始化成功！");
+        console.log("数据库实例：", db);
+
+        // 5. 读取股票数据（模块化写法，替换旧版逻辑）
         function loadStockRecommendations() {
-            const stockRef = db.ref('recommend');
-            stockRef.on('value', (snapshot) => {
+            // 指向 Realtime Database 中的 stock_recommendations 节点
+            const stockRef = ref(db, 'recommend');
+
+            // 监听数据变化（实时更新）
+            onValue(stockRef, (snapshot) => {
                 const stocks = snapshot.val();
                 const stockList = document.getElementById('stock-list');
                 const updateTimeEl = document.getElementById('update-time');
 
-                // 清空列表
-                stockList.innerHTML = '';
+                stockList.innerHTML = ''; // 清空列表
 
                 if (!stocks) {
                     stockList.innerHTML = '<tr><td colspan="6" style="text-align:center">暂无推荐数据</td></tr>';
@@ -81,7 +85,7 @@
                     ...data
                 })).sort((a, b) => b.last_updated - a.last_updated);
 
-                // 更新最后更新时间（取第一个股票的时间）
+                // 更新最后更新时间
                 const lastUpdate = new Date(stockArray[0].last_updated);
                 updateTimeEl.textContent = lastUpdate.toLocaleString();
 
@@ -91,17 +95,20 @@
                     row.innerHTML = `
                         <td>${stock.symbol}</td>
                         <td>${stock.buy_price}</td>
-                        <td>${stock.stop_gian}</td>
+                        <td>${stock.stop_gain}</td>
                         <td>${stock.stop_loss}</td>
                         <td class="strategies">${stock.strategies.join(', ')}</td>
                     `;
                     stockList.appendChild(row);
                 });
+            }, (error) => {
+                console.error("读取数据失败：", error.message);
+                stockList.innerHTML = '<tr><td colspan="5" style="text-align:center">数据加载失败，请刷新重试</td></tr>';
             });
         }
 
-        // 页面加载时读取数据
-        window.onload = loadStockRecommendations;
+        // 页面加载时执行
+        loadStockRecommendations();
     </script>
 </body>
 </html>
