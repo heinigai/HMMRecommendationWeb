@@ -103,7 +103,7 @@
     <script type="module">
         // 导入Firebase模块
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getDatabase, ref, onValue, orderByKey, limitToFirst, get } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import { getDatabase, ref, onValue, orderByKey, limitToFirst, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
         import {
             getAuth,
             signInWithEmailAndPassword,
@@ -162,8 +162,8 @@
                     case 'auth/user-not-found':
                         errorMsg = "该邮箱未注册，请联系管理员添加账号";
                         break;
-                    case 'auth/wrong-password':
-                        errorMsg = "密码错误，请重新输入";
+                    case 'auth/invalid-credential':
+                        errorMsg = "邮箱或密码错误，请重新输入";
                         break;
                     case 'auth/operation-not-allowed':
                         errorMsg = "邮箱/密码登录功能未启用，请联系管理员";
