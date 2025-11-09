@@ -220,7 +220,7 @@
                 limitToLast(1) // 只取最后 1 条（最新日期节点）
             );
 
-            onValue(latestQuery, (snapshot) => {
+            onValue(latestDateQuery, (snapshot) => {
                 stockList.innerHTML = '';
 
                 // 1. 处理无数据情况
