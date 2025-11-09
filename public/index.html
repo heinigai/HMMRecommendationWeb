@@ -11,34 +11,108 @@
         .stock-table th { background-color: #f5f5f5; }
         .header { color: #2c3e50; }
         .strategies { color: #3498db; }
+        .login-container { max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+        .error-message { color: #e74c3c; margin: 10px 0; text-align: center; }
+        .success-message { color: #2ecc71; margin: 10px 0; text-align: center; }
+        .user-info { text-align: right; margin-bottom: 15px; }
+        .logout-btn { background-color: #e74c3c; margin-left: 10px; }
+        .loading { color: #7f8c8d; }
+        /* 忘记密码链接样式 */
+        .forgot-password { text-align: right; margin-top: 8px; }
+        .forgot-password a { color: #3498db; text-decoration: none; font-size: 0.9em; }
+        .forgot-password a:hover { text-decoration: underline; }
+        /* 模态框样式 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 25px; border-radius: 8px; max-width: 350px; width: 100%; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-title { margin: 0; font-size: 1.1em; color: #2c3e50; }
+        .close-modal { background: none; border: none; font-size: 1.2em; cursor: pointer; color: #7f8c8d; }
+        .close-modal:hover { color: #e74c3c; }
+        .modal-footer { margin-top: 20px; text-align: right; }
+        .cancel-btn { background-color: #bdc3c7; margin-right: 10px; }
+        .cancel-btn:hover { background-color: #95a5a6; }
     </style>
 </head>
 <body>
+    <div class="user-info" id="user-info"></div>
     <h1 class="header">📈 股票推荐系统</h1>
     <p>最后更新时间：<span id="update-time">-</span></p>
-    <table class="stock-table">
-        <thead>
-            <tr>
-                <th>股票代码</th>
-                <th>买入价格</th>
-                <th>止盈价格</th>
-                <th>止损价格</th>
-                <th>命中策略</th>
-            </tr>
-        </thead>
-        <tbody id="stock-list">
-            <!-- 数据将通过JS动态填充 -->
-            <tr><td colspan="6" style="text-align:center">加载中...</td></tr>
-        </tbody>
-    </table>
 
-    <!-- 模块化导入 Firebase SDK + 完整逻辑 -->
+    <!-- 登录表单 -->
+    <div class="login-container" id="login-form">
+        <h2>用户登录</h2>
+        <div class="error-message" id="login-error"></div>
+        <div class="form-group">
+            <label for="email">邮箱</label>
+            <input type="email" id="email" placeholder="请输入授权邮箱" required>
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="请输入密码" required>
+        </div>
+        <!-- 忘记密码链接 -->
+        <div class="forgot-password">
+            <a href="javascript:openForgotPasswordModal()">忘记密码？</a>
+        </div>
+        <button onclick="login()" style="width: 100%; margin-top: 15px;">登录</button>
+    </div>
+
+    <!-- 股票数据表格（默认隐藏） -->
+    <div id="stock-container" style="display: none;">
+        <table class="stock-table">
+            <thead>
+                <tr>
+                    <th>股票代码</th>
+                    <th>买入价格</th>
+                    <th>止盈价格</th>
+                    <th>止损价格</th>
+                    <th>命中策略</th>
+                </tr>
+            </thead>
+            <tbody id="stock-list">
+                <tr><td colspan="6" style="text-align:center">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 忘记密码模态框 -->
+    <div class="modal" id="forgot-password-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">重置密码</h3>
+                <button class="close-modal" onclick="closeForgotPasswordModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="reset-email">输入您的授权邮箱</label>
+                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required>
+            </div>
+            <div class="error-message" id="reset-error"></div>
+            <div class="success-message" id="reset-success"></div>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeForgotPasswordModal()">取消</button>
+                <button onclick="sendResetPasswordEmail()">发送重置邮件</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-        // 1. 导入需要的函数（Realtime Database核心函数）
+        // 导入Firebase模块
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import { getDatabase, ref, onValue, orderByChild, limitToFirst, get } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            sendPasswordResetEmail  // 忘记密码核心函数
+        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
-        // 2. 你的Firebase配置（直接用官方给的，无需修改）
+        // Firebase配置
         const firebaseConfig = {
             apiKey: "AIzaSyDHd6LoUOSlDm-Nj6c8NSXdtGw5HvPi3I4",
             authDomain: "qtrader-3fd6b.firebaseapp.com",
@@ -50,43 +124,88 @@
             measurementId: "G-HECR0FG996"
         };
 
-        // 3. 初始化Firebase（模块化写法）
+        // 初始化Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app); // 初始化Realtime Database实例（关键！替换旧版的firebase.database()）
+        const db = getDatabase(app);
+        const auth = getAuth(app);
 
-        // 4. 验证SDK加载成功（控制台打印，可删除）
-        console.log("Firebase初始化成功！");
-        console.log("数据库实例：", db);
+        // 登录函数
+        window.login = async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('login-error');
 
-        // 5. 读取股票数据（模块化写法，替换旧版逻辑）
+            try {
+                errorElement.textContent = '';
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                const errorMsg = error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password'
+                    ? "邮箱或密码错误"
+                    : `登录失败: ${error.message}`;
+                errorElement.textContent = errorMsg;
+            }
+        };
+
+        // 退出登录
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("退出登录失败:", error);
+            }
+        };
+
+        // 监听认证状态变化
+        onAuthStateChanged(auth, (user) => {
+            const loginForm = document.getElementById('login-form');
+            const stockContainer = document.getElementById('stock-container');
+            const userInfo = document.getElementById('user-info');
+
+            if (user && ALLOWED_USERS.includes(user.email)) {
+                // 用户已登录且有权限
+                loginForm.style.display = 'none';
+                stockContainer.style.display = 'block';
+                userInfo.innerHTML = `
+                    <span>当前登录: ${user.email}</span>
+                    <button class="logout-btn" onclick="logout()">退出登录</button>
+                `;
+                loadStockRecommendations();
+            } else {
+                // 未登录或无权限
+                loginForm.style.display = 'block';
+                stockContainer.style.display = 'none';
+                userInfo.innerHTML = '';
+            }
+        });
+
+        // 加载股票数据
         function loadStockRecommendations() {
-            // 指向 Realtime Database 中的 stock_recommendations 节点
             const stockRef = ref(db, 'recommend');
+            const stockList = document.getElementById('stock-list');
+            const updateTimeEl = document.getElementById('update-time');
 
-            // 监听数据变化（实时更新）
-            onValue(stockRef, (snapshot) => {
+            // 创建查询，按 last_updated 字段排序并限制返回1条最新记录
+            const sortedQuery = orderByChild(stockRef, "last_updated");
+            const latestQuery = limitToFirst(sortedQuery, 1);
+
+            onValue(latestQuery, (snapshot) => {
                 const stocks = snapshot.val();
-                const stockList = document.getElementById('stock-list');
-                const updateTimeEl = document.getElementById('update-time');
-
-                stockList.innerHTML = ''; // 清空列表
+                console.log('Stocks:', stocks);
+                stockList.innerHTML = '';
 
                 if (!stocks) {
-                    stockList.innerHTML = '<tr><td colspan="6" style="text-align:center">暂无推荐数据</td></tr>';
+                    stockList.innerHTML = '<tr><td colspan="5" style="text-align:center">暂无推荐数据</td></tr>';
                     return;
                 }
 
-                // 转换为数组并按更新时间排序
                 const stockArray = Object.entries(stocks).map(([symbol, data]) => ({
                     symbol,
                     ...data
                 })).sort((a, b) => b.last_updated - a.last_updated);
 
-                // 更新最后更新时间
                 const lastUpdate = new Date(stockArray[0].last_updated);
                 updateTimeEl.textContent = lastUpdate.toLocaleString();
 
-                // 填充表格
                 stockArray.forEach(stock => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -100,12 +219,79 @@
                 });
             }, (error) => {
                 console.error("读取数据失败：", error.message);
-                stockList.innerHTML = '<tr><td colspan="5" style="text-align:center">数据加载失败，请刷新重试</td></tr>';
+                const errorMsg = error.code === 'PERMISSION_DENIED'
+                    ? '您的账号没有访问权限'
+                    : '数据加载失败，请刷新重试';
+                stockList.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#e74c3c">${errorMsg}</td></tr>`;
+                if (error.code === 'PERMISSION_DENIED') setTimeout(() => signOut(auth), 3000);
             });
         }
 
-        // 页面加载时执行
-        loadStockRecommendations();
+        // 忘记密码相关函数
+        // 打开模态框
+        window.openForgotPasswordModal = () => {
+            document.getElementById('forgot-password-modal').style.display = 'flex';
+            // 清空之前的错误/成功提示
+            document.getElementById('reset-error').textContent = '';
+            document.getElementById('reset-success').textContent = '';
+            // 聚焦输入框
+            document.getElementById('reset-email').focus();
+        };
+
+        // 关闭模态框
+        window.closeForgotPasswordModal = () => {
+            document.getElementById('forgot-password-modal').style.display = 'none';
+        };
+
+        // 发送重置密码邮件
+        window.sendResetPasswordEmail = async () => {
+            const email = document.getElementById('reset-email').value.trim();
+            const errorElement = document.getElementById('reset-error');
+            const successElement = document.getElementById('reset-success');
+
+            try {
+                errorElement.textContent = '';
+                successElement.textContent = '';
+
+                // 验证邮箱格式
+                if (!email.includes('@')) {
+                    throw new Error("请输入有效的邮箱地址");
+                }
+
+                // 调用Firebase API发送重置邮件
+                await sendPasswordResetEmail(auth, email, {
+                    url: window.location.origin  // 重置成功后跳转回当前页面（可选）
+                });
+
+                // 提示成功
+                successElement.textContent = "重置邮件已发送！请查收邮箱（含垃圾邮件）";
+                // 3秒后自动关闭模态框
+                setTimeout(closeForgotPasswordModal, 3000);
+            } catch (error) {
+                // 处理不同错误类型
+                let errorMsg;
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMsg = "该邮箱未注册，请输入授权邮箱";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMsg = "邮箱格式无效，请重新输入";
+                        break;
+                    default:
+                        errorMsg = `发送失败: ${error.message}`;
+                }
+                errorElement.textContent = errorMsg;
+            }
+        };
+
+        // 点击模态框外部关闭
+        window.onclick = (event) => {
+            const modal = document.getElementById('forgot-password-modal');
+            if (event.target === modal) {
+                closeForgotPasswordModal();
+            }
+        };
+
     </script>
 </body>
 </html>
