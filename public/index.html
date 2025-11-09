@@ -327,11 +327,6 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // 配置状态持久化 使用户登录状态能够在浏览器关闭后仍然保持，提升用户体验
-<!--        setPersistence(auth, browserLocalPersistence)-->
-<!--            .then(() => console.log("状态持久化配置成功"))-->
-<!--            .catch(err => console.error("持久化配置失败：", err));-->
-
         // 登录函数
         window.login = async () => {
             const email = document.getElementById('email').value;
