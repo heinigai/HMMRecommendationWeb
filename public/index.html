@@ -161,7 +161,7 @@
             const stockContainer = document.getElementById('stock-container');
             const userInfo = document.getElementById('user-info');
 
-            if (user && ALLOWED_USERS.includes(user.email)) {
+            if (user) {
                 // 用户已登录且有权限
                 loginForm.style.display = 'none';
                 stockContainer.style.display = 'block';
