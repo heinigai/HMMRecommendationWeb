@@ -15,13 +15,15 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-top: 70px; /* 为顶部用户信息留出空间 */
         }
 
         /* 登录页样式 */
         .login-container {
-            max-width: 400px;
-            margin: 80px auto;
-            padding: 30px;
+            max-width: 600px; /* 增大登录表单宽度 */
+            width: 90%; /* 增加响应式支持 */
+            margin: 50px auto;
+            padding: 30px; /* 增加内边距 */
             border: 1px solid rgba(109, 213, 250, 0.2);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.05);
@@ -42,23 +44,23 @@
         }
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px; /* 增大输入框内边距 */
             box-sizing: border-box;
             border: 1px solid rgba(109, 213, 250, 0.3);
             border-radius: 4px;
             background: rgba(255, 255, 255, 0.03);
             color: #e2e8f0;
-            font-size: 1em;
+            font-size: 1em; /* 增大字体 */
         }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px; /* 增大按钮内边距 */
             background: linear-gradient(135deg, #3b82f6, #60a5fa);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em; /* 增大按钮字体 */
             transition: background 0.3s ease;
         }
         button:hover {
@@ -164,19 +166,21 @@
         /* 股票数据页样式 */
         #stock-container {
             padding: 30px;
-            max-width: 1200px;
+            width: 95%; /* 增大宽度，使用百分比 */
+            max-width: 1600px; /* 增大最大宽度 */
             margin: 0 auto;
             display: none;
         }
         .stock-table {
-            width: 100%;
+            width: 100%; /* 表格占满容器 */
             border-collapse: collapse;
             margin-top: 20px;
         }
         .stock-table th, .stock-table td {
             border: 1px solid rgba(109, 213, 250, 0.2);
-            padding: 12px;
+            padding: 14px; /* 增大单元格内边距 */
             text-align: left;
+            font-size: 1.05em; /* 增大表格字体 */
         }
         .stock-table th {
             background: rgba(255, 255, 255, 0.05);
@@ -186,19 +190,48 @@
             color: #60a5fa;
         }
         .user-info {
-            text-align: right;
-            margin: 20px 30px 0 0;
+            position: fixed; /* 固定在顶部 */
+            top: 20px;
+            right: 30px;
+            z-index: 100; /* 确保在其他内容上方 */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-info span {
+            color: #e2e8f0;
         }
         .logout-btn {
             background: linear-gradient(135deg, #ef4444, #f87171);
             margin-left: 10px;
+            padding: 8px 16px; /* 调整按钮大小 */
+            width: auto; /* 取消100%宽度限制 */
         }
         .logout-btn:hover {
             background: linear-gradient(135deg, #dc2626, #ef4444);
         }
+
+        /* 忘记密码链接样式 */
+        .forgot-password { text-align: right; margin-top: 8px; }
+        .forgot-password a { color: #3498db; text-decoration: none; font-size: 0.9em; }
+        .forgot-password a:hover { text-decoration: underline; }
+
+        /* 模态框样式 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 25px; border-radius: 8px; max-width: 500px; /* 增大模态框宽度 */ width: 90%; /* 响应式支持 */ }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-title { margin: 0; font-size: 1.1em; color: #2c3e50; }
+        .close-modal { background: none; border: none; font-size: 1.2em; cursor: pointer; color: #7f8c8d; }
+        .close-modal:hover { color: #e74c3c; }
+        .modal-footer { margin-top: 20px; text-align: right; }
+        .cancel-btn { background-color: #bdc3c7; margin-right: 10px; }
+        .cancel-btn:hover { background-color: #95a5a6; }
     </style>
 </head>
 <body>
+    <!-- 用户信息和登出按钮 -->
+    <div class="user-info" id="user-info"></div>
+
     <!-- 登录页 -->
     <div id="login-form" class="login-container">
         <h2>用户登录</h2>
@@ -255,7 +288,6 @@
     </div>
 
     <!-- 股票数据页 -->
-    <div class="user-info" id="user-info"></div>
     <div id="stock-container">
         <h1 class="header">📈 Matrix R 股票推荐系统</h1>
         <p>最后更新时间：<span id="update-time">-</span></p>
@@ -277,21 +309,21 @@
     </div>
 
     <!-- 忘记密码模态框 -->
-    <div class="modal" id="forgot-password-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-        <div class="modal-content" style="background-color: white; padding: 25px; border-radius: 8px; max-width: 350px; width: 100%;">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                <h3 class="modal-title" style="margin: 0; font-size: 1.1em; color: #2c3e50;">重置密码</h3>
-                <button class="close-modal" onclick="closeForgotPasswordModal()" style="background: none; border: none; font-size: 1.2em; cursor: pointer; color: #7f8c8d;">×</button>
+    <div class="modal" id="forgot-password-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">重置密码</h3>
+                <button class="close-modal" onclick="closeForgotPasswordModal()">×</button>
             </div>
             <div class="form-group">
-                <label for="reset-email" style="display: block; margin-bottom: 5px; color: #2c3e50;">输入您的授权邮箱</label>
-                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; color: #2c3e50;">
+                <label for="reset-email" style="color: #2c3e50;">输入您的授权邮箱</label>
+                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required style="color: #2c3e50;">
             </div>
-            <div class="error-message" id="reset-error" style="color: #e74c3c; margin: 10px 0;"></div>
+            <div class="error-message" id="reset-error"></div>
             <div class="success-message" id="reset-success" style="color: #2ecc71; margin: 10px 0;"></div>
-            <div class="modal-footer" style="margin-top: 20px; text-align: right;">
-                <button class="cancel-btn" onclick="closeForgotPasswordModal()" style="background-color: #bdc3c7; margin-right: 10px; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">取消</button>
-                <button onclick="sendResetPasswordEmail()" style="background-color: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">发送重置邮件</button>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeForgotPasswordModal()">取消</button>
+                <button onclick="sendResetPasswordEmail()">发送重置邮件</button>
             </div>
         </div>
     </div>
@@ -299,7 +331,7 @@
     <script type="module">
         // 导入Firebase模块
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getDatabase, ref, onValue, orderByKey, limitToFirst, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import { getDatabase, ref, onValue, orderByKey, query, limitToLast } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
         import {
             getAuth,
             signInWithEmailAndPassword,
@@ -502,7 +534,7 @@
                 const errorMsg = error.code === 'PERMISSION_DENIED'
                     ? '您的账号没有访问权限'
                     : '数据加载失败，请刷新重试';
-                stockList.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#e74c3c">${errorMsg}</td></tr>`;
+                stockList.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#e74c3c">${errorMsg}</td></tr>`;
                 if (error.code === 'PERMISSION_DENIED') setTimeout(() => signOut(auth), 3000);
             });
         }
