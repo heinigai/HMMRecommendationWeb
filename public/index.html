@@ -68,6 +68,7 @@
             <thead>
                 <tr>
                     <th>股票代码</th>
+                    <th>日期</th>
                     <th>买入价格</th>
                     <th>止盈价格</th>
                     <th>止损价格</th>
@@ -225,7 +226,7 @@
 
                 // 1. 处理无数据情况
                 if (!snapshot.exists()) {
-                    stockList.innerHTML = '<tr><td colspan="5" style="text-align:center">暂无推荐数据</td></tr>';
+                    stockList.innerHTML = '<tr><td colspan="6" style="text-align:center">暂无推荐数据</td></tr>';
                     updateTimeEl.textContent = '暂无更新';
                     return;
                 }
@@ -239,7 +240,7 @@
 
                 // 3. 处理无股票数据的情况
                 if (latestStocks.length === 0) {
-                    stockList.innerHTML = `<tr><td colspan="5" style="text-align:center">${latestDate} 暂无推荐数据</td></tr>`;
+                    stockList.innerHTML = `<tr><td colspan="6" style="text-align:center">${latestDate} 暂无推荐数据</td></tr>`;
                     updateTimeEl.textContent = new Date(latestUpdateTime).toLocaleString();
                     return;
                 }
@@ -257,14 +258,16 @@
                 // 6. 填充表格
                 latestStocks.forEach(stock => {
                     const symbol = stock.symbol || '未知代码';
+                    const stockDate = stock.date || '—';
                     const buyPrice = stock.buy_price || '—';
                     const stopGain = stock.stop_gain || '—';
                     const stopLoss = stock.stop_loss || '—';
-                    const strategies = stock.strategies?.join(', ') || '无';
+                    const strategies = stock.strategies?.join(', ') || '';
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${symbol}</td>
+                        <td>${stockDate}</td>
                         <td>${buyPrice}</td>
                         <td>${stopGain}</td>
                         <td>${stopLoss}</td>
