@@ -103,7 +103,7 @@
     <script type="module">
         // 导入Firebase模块
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getDatabase, ref, onValue, orderByChild, limitToFirst, get } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import { getDatabase, ref, onValue, orderByKey, limitToFirst, get } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
         import {
             getAuth,
             signInWithEmailAndPassword,
@@ -135,13 +135,42 @@
             const password = document.getElementById('password').value;
             const errorElement = document.getElementById('login-error');
 
+            // 参数非空校验
+            if (!email) {
+                errorElement.textContent = "请输入邮箱";
+                return;
+            }
+            if (!password) {
+                errorElement.textContent = "请输入密码";
+                return;
+            }
+
             try {
                 errorElement.textContent = '';
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                const errorMsg = error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password'
-                    ? "邮箱或密码错误"
-                    : `登录失败: ${error.message}`;
+                console.error("登录失败详细信息：", {
+                    code: error.code,
+                    message: error.message
+                });
+
+                let errorMsg;
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMsg = "邮箱格式无效，请输入正确的邮箱（如 xxx@xxx.com）";
+                        break;
+                    case 'auth/user-not-found':
+                        errorMsg = "该邮箱未注册，请联系管理员添加账号";
+                        break;
+                    case 'auth/wrong-password':
+                        errorMsg = "密码错误，请重新输入";
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMsg = "邮箱/密码登录功能未启用，请联系管理员";
+                        break;
+                    default:
+                        errorMsg = `登录失败：${error.message}（错误码：${error.code}）`;
+                }
                 errorElement.textContent = errorMsg;
             }
         };
@@ -184,36 +213,62 @@
             const stockList = document.getElementById('stock-list');
             const updateTimeEl = document.getElementById('update-time');
 
-            // 创建查询，按 last_updated 字段排序并限制返回1条最新记录
-            const sortedQuery = orderByChild(stockRef, "last_updated");
-            const latestQuery = limitToFirst(sortedQuery, 1);
+            // 关键查询：按子节点 key（日期）升序排序，取最后 1 条（即最新日期）
+            const latestDateQuery = query(
+                stockRef,
+                orderByKey(), // 按子节点名（日期）排序（YYYY-MM-DD 字典序=日期顺序）
+                limitToLast(1) // 只取最后 1 条（最新日期节点）
+            );
 
             onValue(latestQuery, (snapshot) => {
-                const stocks = snapshot.val();
-                console.log('Stocks:', stocks);
                 stockList.innerHTML = '';
 
-                if (!stocks) {
+                // 1. 处理无数据情况
+                if (!snapshot.exists()) {
                     stockList.innerHTML = '<tr><td colspan="5" style="text-align:center">暂无推荐数据</td></tr>';
+                    updateTimeEl.textContent = '暂无更新';
                     return;
                 }
 
-                const stockArray = Object.entries(stocks).map(([symbol, data]) => ({
-                    symbol,
-                    ...data
-                })).sort((a, b) => b.last_updated - a.last_updated);
+                // 2. 解析最新日期节点（snapshot 只包含 1 个节点：最新日期）
+                const latestDateData = snapshot.val(); // 格式：{ "2025-11-01": {data: [...], last_updated: ...} }
+                const latestDate = Object.keys(latestDateData)[0]; // 提取最新日期（如 "2025-11-01"）
+                const dateNode = latestDateData[latestDate]; // 最新日期节点的内容
+                const latestStocks = dateNode.data || []; // 最新日期的股票数组
+                const latestUpdateTime = dateNode.last_updated || Date.now(); // 最新更新时间戳
 
-                const lastUpdate = new Date(stockArray[0].last_updated);
-                updateTimeEl.textContent = lastUpdate.toLocaleString();
+                // 3. 处理无股票数据的情况
+                if (latestStocks.length === 0) {
+                    stockList.innerHTML = `<tr><td colspan="5" style="text-align:center">${latestDate} 暂无推荐数据</td></tr>`;
+                    updateTimeEl.textContent = new Date(latestUpdateTime).toLocaleString();
+                    return;
+                }
 
-                stockArray.forEach(stock => {
+                // 4. 按股票自身更新时间排序（最新股票在前）
+                latestStocks.sort((a, b) => {
+                    const aTime = a.last_updated || latestUpdateTime;
+                    const bTime = b.last_updated || latestUpdateTime;
+                    return bTime - aTime;
+                });
+
+                // 5. 更新页面显示
+                updateTimeEl.textContent = `${latestDate} ${new Date(latestUpdateTime).toLocaleTimeString()}`;
+
+                // 6. 填充表格
+                latestStocks.forEach(stock => {
+                    const symbol = stock.symbol || '未知代码';
+                    const buyPrice = stock.buy_price || '—';
+                    const stopGain = stock.stop_gain || '—';
+                    const stopLoss = stock.stop_loss || '—';
+                    const strategies = stock.strategies?.join(', ') || '无';
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${stock.symbol}</td>
-                        <td>${stock.buy_price}</td>
-                        <td>${stock.stop_gain}</td>
-                        <td>${stock.stop_loss}</td>
-                        <td class="strategies">${stock.strategies.join(', ')}</td>
+                        <td>${symbol}</td>
+                        <td>${buyPrice}</td>
+                        <td>${stopGain}</td>
+                        <td>${stopLoss}</td>
+                        <td class="strategies">${strategies}</td>
                     `;
                     stockList.appendChild(row);
                 });
