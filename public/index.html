@@ -391,8 +391,9 @@
 
             if (user) {
                 // 用户已登录且有权限
-                loginForm.style.display = 'none';
-                stockContainer.style.display = 'block';
+                loginPage.style.display = 'none';
+                homePage.style.display = 'block'; // 登录成功先显示首页
+                stockPage.style.display = 'none';
                 userInfo.innerHTML = `
                     <span>当前登录: ${user.email}</span>
                     <button class="logout-btn" onclick="logout()">退出登录</button>
