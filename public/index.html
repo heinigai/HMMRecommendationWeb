@@ -5,46 +5,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>股票推荐系统</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .stock-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .stock-table th, .stock-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .stock-table th { background-color: #f5f5f5; }
-        .header { color: #2c3e50; }
-        .strategies { color: #3498db; }
-        .login-container { max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; }
-        button { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #2980b9; }
-        .error-message { color: #e74c3c; margin: 10px 0; text-align: center; }
-        .success-message { color: #2ecc71; margin: 10px 0; text-align: center; }
-        .user-info { text-align: right; margin-bottom: 15px; }
-        .logout-btn { background-color: #e74c3c; margin-left: 10px; }
-        .loading { color: #7f8c8d; }
-        /* 忘记密码链接样式 */
-        .forgot-password { text-align: right; margin-top: 8px; }
-        .forgot-password a { color: #3498db; text-decoration: none; font-size: 0.9em; }
-        .forgot-password a:hover { text-decoration: underline; }
-        /* 模态框样式 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background-color: white; padding: 25px; border-radius: 8px; max-width: 350px; width: 100%; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .modal-title { margin: 0; font-size: 1.1em; color: #2c3e50; }
-        .close-modal { background: none; border: none; font-size: 1.2em; cursor: pointer; color: #7f8c8d; }
-        .close-modal:hover { color: #e74c3c; }
-        .modal-footer { margin-top: 20px; text-align: right; }
-        .cancel-btn { background-color: #bdc3c7; margin-right: 10px; }
-        .cancel-btn:hover { background-color: #95a5a6; }
+        /* 全局样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 登录页样式 */
+        .login-container {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 30px;
+            border: 1px solid rgba(109, 213, 250, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .login-container h2 {
+            color: #6dd5fa;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a8dadc;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid rgba(109, 213, 250, 0.3);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #e2e8f0;
+            font-size: 1em;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #2563eb, #4f97f7);
+        }
+        .error-message {
+            color: #ef4444;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+        .forgot-password a {
+            color: #6dd5fa;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* 首页样式 */
+        #home-page {
+            text-align: center;
+            padding: 60px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .header {
+            color: #6dd5fa;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #a8dadc;
+            margin-bottom: 50px;
+            font-size: 1.1em;
+        }
+        .card-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(109, 213, 250, 0.2);
+            border-radius: 8px;
+            padding: 30px;
+            width: 220px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            background: rgba(109, 213, 250, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        .card-icon.simulating {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+        .card-icon.matrix {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+        .card-icon.asterism {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+        }
+        .card-icon.login {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+        .card h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .card p {
+            color: #a8dadc;
+            font-size: 0.9em;
+        }
+        .copyright {
+            color: #a8dadc;
+            font-size: 0.8em;
+        }
+
+        /* 股票数据页样式 */
+        #stock-container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+        }
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .stock-table th, .stock-table td {
+            border: 1px solid rgba(109, 213, 250, 0.2);
+            padding: 12px;
+            text-align: left;
+        }
+        .stock-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #6dd5fa;
+        }
+        .strategies {
+            color: #60a5fa;
+        }
+        .user-info {
+            text-align: right;
+            margin: 20px 30px 0 0;
+        }
+        .logout-btn {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            margin-left: 10px;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
     </style>
 </head>
 <body>
-    <div class="user-info" id="user-info"></div>
-    <h1 class="header">📈 股票推荐系统</h1>
-    <p>最后更新时间：<span id="update-time">-</span></p>
-
-    <!-- 登录表单 -->
-    <div class="login-container" id="login-form">
+    <!-- 登录页 -->
+    <div id="login-form" class="login-container">
         <h2>用户登录</h2>
         <div class="error-message" id="login-error"></div>
         <div class="form-group">
@@ -55,15 +211,54 @@
             <label for="password">密码</label>
             <input type="password" id="password" placeholder="请输入密码" required>
         </div>
-        <!-- 忘记密码链接 -->
         <div class="forgot-password">
             <a href="javascript:openForgotPasswordModal()">忘记密码？</a>
         </div>
-        <button onclick="login()" style="width: 100%; margin-top: 15px;">登录</button>
+        <button onclick="login()">登录</button>
     </div>
 
-    <!-- 股票数据表格（默认隐藏） -->
-    <div id="stock-container" style="display: none;">
+    <!-- 首页 -->
+    <div id="home-page" style="display: none;">
+        <h1 class="header">Asterism Capital</h1>
+        <p class="subtitle">Advanced Investment Solutions</p>
+        <div class="card-container">
+            <div class="card" id="card-simulating">
+                <div class="card-icon simulating">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 5v2m0 10v2"></path><path d="M5 12h2m10 0h2"></path></svg>
+                </div>
+                <h3>Simulating Strategy</h3>
+                <p>模拟分析</p>
+            </div>
+            <div class="card" id="card-matrix">
+                <div class="card-icon matrix">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+                </div>
+                <h3>Matrix R Strategy</h3>
+                <p>Matrix R 策略</p>
+            </div>
+            <div class="card" id="card-asterism">
+                <div class="card-icon asterism">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </div>
+                <h3>Asterism Strategy</h3>
+                <p>Asterism 策略</p>
+            </div>
+            <div class="card" id="card-login">
+                <div class="card-icon login">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <h3>Personnel Login</h3>
+                <p>用户管理</p>
+            </div>
+        </div>
+        <p class="copyright">© 2024 Asterism Capital. All rights reserved.</p>
+    </div>
+
+    <!-- 股票数据页 -->
+    <div class="user-info" id="user-info"></div>
+    <div id="stock-container">
+        <h1 class="header">📈 Matrix R 股票推荐系统</h1>
+        <p>最后更新时间：<span id="update-time">-</span></p>
         <table class="stock-table">
             <thead>
                 <tr>
@@ -76,27 +271,27 @@
                 </tr>
             </thead>
             <tbody id="stock-list">
-                <tr><td colspan="6" style="text-align:center">加载中...</td></tr>
+                <tr><td colspan="6" style="text-align:center" class="loading">加载中...</td></tr>
             </tbody>
         </table>
     </div>
 
     <!-- 忘记密码模态框 -->
-    <div class="modal" id="forgot-password-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">重置密码</h3>
-                <button class="close-modal" onclick="closeForgotPasswordModal()">&times;</button>
+    <div class="modal" id="forgot-password-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background-color: white; padding: 25px; border-radius: 8px; max-width: 350px; width: 100%;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <h3 class="modal-title" style="margin: 0; font-size: 1.1em; color: #2c3e50;">重置密码</h3>
+                <button class="close-modal" onclick="closeForgotPasswordModal()" style="background: none; border: none; font-size: 1.2em; cursor: pointer; color: #7f8c8d;">×</button>
             </div>
             <div class="form-group">
-                <label for="reset-email">输入您的授权邮箱</label>
-                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required>
+                <label for="reset-email" style="display: block; margin-bottom: 5px; color: #2c3e50;">输入您的授权邮箱</label>
+                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 4px; color: #2c3e50;">
             </div>
-            <div class="error-message" id="reset-error"></div>
-            <div class="success-message" id="reset-success"></div>
-            <div class="modal-footer">
-                <button class="cancel-btn" onclick="closeForgotPasswordModal()">取消</button>
-                <button onclick="sendResetPasswordEmail()">发送重置邮件</button>
+            <div class="error-message" id="reset-error" style="color: #e74c3c; margin: 10px 0;"></div>
+            <div class="success-message" id="reset-success" style="color: #2ecc71; margin: 10px 0;"></div>
+            <div class="modal-footer" style="margin-top: 20px; text-align: right;">
+                <button class="cancel-btn" onclick="closeForgotPasswordModal()" style="background-color: #bdc3c7; margin-right: 10px; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer;">取消</button>
+                <button onclick="sendResetPasswordEmail()" style="background-color: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">发送重置邮件</button>
             </div>
         </div>
     </div>
@@ -110,7 +305,9 @@
             signInWithEmailAndPassword,
             signOut,
             onAuthStateChanged,
-            sendPasswordResetEmail  // 忘记密码核心函数
+            sendPasswordResetEmail,
+            setPersistence,
+            browserLocalPersistence
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
         // Firebase配置
@@ -129,6 +326,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
+
+        // 配置状态持久化 使用户登录状态能够在浏览器关闭后仍然保持，提升用户体验
+<!--        setPersistence(auth, browserLocalPersistence)-->
+<!--            .then(() => console.log("状态持久化配置成功"))-->
+<!--            .catch(err => console.error("持久化配置失败：", err));-->
 
         // 登录函数
         window.login = async () => {
@@ -187,8 +389,9 @@
 
         // 监听认证状态变化
         onAuthStateChanged(auth, (user) => {
-            const loginForm = document.getElementById('login-form');
-            const stockContainer = document.getElementById('stock-container');
+            const loginPage = document.getElementById('login-form');
+            const homePage = document.getElementById('home-page');
+            const stockPage = document.getElementById('stock-container');
             const userInfo = document.getElementById('user-info');
 
             if (user) {
@@ -202,10 +405,34 @@
                 loadStockRecommendations();
             } else {
                 // 未登录或无权限
-                loginForm.style.display = 'block';
-                stockContainer.style.display = 'none';
+                loginPage.style.display = 'block';
+                homePage.style.display = 'none';
+                stockPage.style.display = 'none';
                 userInfo.innerHTML = '';
+                document.getElementById('stock-list').innerHTML = '<tr><td colspan="6" style="text-align:center" class="loading">加载中...</td></tr>';
+                document.getElementById('update-time').textContent = '-';
             }
+        });
+
+        // 首页卡片点击事件
+        document.getElementById('card-matrix').addEventListener('click', () => {
+            const homePage = document.getElementById('home-page');
+            const stockPage = document.getElementById('stock-container');
+            homePage.style.display = 'none';
+            stockPage.style.display = 'block';
+            loadStockRecommendations();
+        });
+
+        document.getElementById('card-simulating').addEventListener('click', () => {
+            alert('Simulating Strategy 功能开发中');
+        });
+
+        document.getElementById('card-asterism').addEventListener('click', () => {
+            alert('Asterism Strategy 功能开发中');
+        });
+
+        document.getElementById('card-login').addEventListener('click', () => {
+            alert('Personnel Login 功能开发中');
         });
 
         // 加载股票数据
@@ -214,7 +441,6 @@
             const stockList = document.getElementById('stock-list');
             const updateTimeEl = document.getElementById('update-time');
 
-            // 关键查询：按子节点 key（日期）升序排序，取最后 1 条（即最新日期）
             const latestDateQuery = query(
                 stockRef,
                 orderByKey(), // 按子节点名（日期）排序（YYYY-MM-DD 字典序=日期顺序）
