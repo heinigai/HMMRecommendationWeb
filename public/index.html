@@ -290,7 +290,7 @@
     <!-- 股票数据页 -->
     <div id="stock-container">
         <h1 class="header">📈 Matrix R 股票推荐系统</h1>
-        <p>最后更新时间：<span id="update-time">-</span></p>
+        <p>更新时间：<span id="update-time">-</span></p>
         <table class="stock-table">
             <thead>
                 <tr>
@@ -337,9 +337,7 @@
             signInWithEmailAndPassword,
             signOut,
             onAuthStateChanged,
-            sendPasswordResetEmail,
-            setPersistence,
-            browserLocalPersistence
+            sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
         // Firebase配置
@@ -507,7 +505,7 @@
                 });
 
                 // 5. 更新页面显示
-                updateTimeEl.textContent = `${latestDate} ${new Date(latestUpdateTime).toLocaleTimeString()}`;
+                updateTimeEl.textContent = new Date(latestUpdateTime).toLocaleString();
 
                 // 6. 填充表格
                 latestStocks.forEach(stock => {
