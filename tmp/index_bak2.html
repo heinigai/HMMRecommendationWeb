@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票推荐系统</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 70px; /* 为顶部用户信息留出空间 */
+        }
+
+        /* 登录页样式 */
+        .login-container {
+            max-width: 600px; /* 增大登录表单宽度 */
+            width: 90%; /* 增加响应式支持 */
+            margin: 50px auto;
+            padding: 30px; /* 增加内边距 */
+            border: 1px solid rgba(109, 213, 250, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .login-container h2 {
+            color: #6dd5fa;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a8dadc;
+        }
+        input {
+            width: 100%;
+            padding: 12px; /* 增大输入框内边距 */
+            box-sizing: border-box;
+            border: 1px solid rgba(109, 213, 250, 0.3);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #e2e8f0;
+            font-size: 1em; /* 增大字体 */
+        }
+        button {
+            width: 100%;
+            padding: 14px; /* 增大按钮内边距 */
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em; /* 增大按钮字体 */
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: linear-gradient(135deg, #2563eb, #4f97f7);
+        }
+        .error-message {
+            color: #ef4444;
+            text-align: center;
+            margin: 15px 0;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+        .forgot-password a {
+            color: #6dd5fa;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        /* 首页样式 */
+        #home-page {
+            text-align: center;
+            padding: 60px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .header {
+            color: #6dd5fa;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #a8dadc;
+            margin-bottom: 50px;
+            font-size: 1.1em;
+        }
+        .card-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 60px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(109, 213, 250, 0.2);
+            border-radius: 8px;
+            padding: 30px;
+            width: 220px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            background: rgba(109, 213, 250, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        .card-icon.simulating {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+        .card-icon.matrix {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+        .card-icon.asterism {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+        }
+        .card-icon.login {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+        .card h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .card p {
+            color: #a8dadc;
+            font-size: 0.9em;
+        }
+        .copyright {
+            color: #a8dadc;
+            font-size: 0.8em;
+        }
+
+        /* 股票数据页样式 */
+        #stock-container {
+            padding: 30px;
+            width: 95%; /* 增大宽度，使用百分比 */
+            max-width: 1600px; /* 增大最大宽度 */
+            margin: 0 auto;
+            display: none;
+        }
+        .stock-table {
+            width: 100%; /* 表格占满容器 */
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .stock-table th, .stock-table td {
+            border: 1px solid rgba(109, 213, 250, 0.2);
+            padding: 14px; /* 增大单元格内边距 */
+            text-align: left;
+            font-size: 1.05em; /* 增大表格字体 */
+        }
+        .stock-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #6dd5fa;
+        }
+        .strategies {
+            color: #60a5fa;
+        }
+        .user-info {
+            position: fixed; /* 固定在顶部 */
+            top: 20px;
+            right: 30px;
+            z-index: 100; /* 确保在其他内容上方 */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-info span {
+            color: #e2e8f0;
+        }
+        .logout-btn {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            margin-left: 10px;
+            padding: 8px 16px; /* 调整按钮大小 */
+            width: auto; /* 取消100%宽度限制 */
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        /* 忘记密码链接样式 */
+        .forgot-password { text-align: right; margin-top: 8px; }
+        .forgot-password a { color: #3498db; text-decoration: none; font-size: 0.9em; }
+        .forgot-password a:hover { text-decoration: underline; }
+
+        /* 模态框样式 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 25px; border-radius: 8px; max-width: 500px; /* 增大模态框宽度 */ width: 90%; /* 响应式支持 */ }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-title { margin: 0; font-size: 1.1em; color: #2c3e50; }
+        .close-modal { background: none; border: none; font-size: 1.2em; cursor: pointer; color: #7f8c8d; }
+        .close-modal:hover { color: #e74c3c; }
+        .modal-footer { margin-top: 20px; text-align: right; }
+        .cancel-btn { background-color: #bdc3c7; margin-right: 10px; }
+        .cancel-btn:hover { background-color: #95a5a6; }
+    </style>
+</head>
+<body>
+    <!-- 用户信息和登出按钮 -->
+    <div class="user-info" id="user-info"></div>
+
+    <!-- 登录页 -->
+    <div id="login-form" class="login-container">
+        <h2>用户登录</h2>
+        <div class="error-message" id="login-error"></div>
+        <div class="form-group">
+            <label for="email">邮箱</label>
+            <input type="email" id="email" placeholder="请输入授权邮箱" required>
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="请输入密码" required>
+        </div>
+        <div class="forgot-password">
+            <a href="javascript:openForgotPasswordModal()">忘记密码？</a>
+        </div>
+        <button onclick="login()">登录</button>
+    </div>
+
+    <!-- 首页 -->
+    <div id="home-page" style="display: none;">
+        <h1 class="header">Asterism Capital</h1>
+        <p class="subtitle">Advanced Investment Solutions</p>
+        <div class="card-container">
+            <div class="card" id="card-simulating">
+                <div class="card-icon simulating">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 5v2m0 10v2"></path><path d="M5 12h2m10 0h2"></path></svg>
+                </div>
+                <h3>Simulating Strategy</h3>
+                <p>模拟分析</p>
+            </div>
+            <div class="card" id="card-matrix">
+                <div class="card-icon matrix">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+                </div>
+                <h3>Matrix R Strategy</h3>
+                <p>Matrix R 策略</p>
+            </div>
+            <div class="card" id="card-asterism">
+                <div class="card-icon asterism">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </div>
+                <h3>Asterism Strategy</h3>
+                <p>Asterism 策略</p>
+            </div>
+            <div class="card" id="card-login">
+                <div class="card-icon login">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <h3>Personnel Login</h3>
+                <p>用户管理</p>
+            </div>
+        </div>
+        <p class="copyright">© 2024 Asterism Capital. All rights reserved.</p>
+    </div>
+
+    <!-- 股票数据页 -->
+    <div id="stock-container">
+        <h1 class="header">📈 Matrix R 股票推荐系统</h1>
+        <p>更新时间：<span id="update-time">-</span></p>
+        <table class="stock-table">
+            <thead>
+                <tr>
+                    <th>股票代码</th>
+                    <th>日期</th>
+                    <th>买入价格</th>
+                    <th>止盈价格</th>
+                    <th>止损价格</th>
+                    <th>命中策略</th>
+                </tr>
+            </thead>
+            <tbody id="stock-list">
+                <tr><td colspan="6" style="text-align:center" class="loading">加载中...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 忘记密码模态框 -->
+    <div class="modal" id="forgot-password-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">重置密码</h3>
+                <button class="close-modal" onclick="closeForgotPasswordModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label for="reset-email" style="color: #2c3e50;">输入您的授权邮箱</label>
+                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required style="color: #2c3e50;">
+            </div>
+            <div class="error-message" id="reset-error"></div>
+            <div class="success-message" id="reset-success" style="color: #2ecc71; margin: 10px 0;"></div>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeForgotPasswordModal()">取消</button>
+                <button onclick="sendResetPasswordEmail()">发送重置邮件</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // 导入Firebase模块
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import { getDatabase, ref, onValue, orderByKey, query, limitToLast } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            signOut,
+            onAuthStateChanged,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+        // Firebase配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHd6LoUOSlDm-Nj6c8NSXdtGw5HvPi3I4",
+            authDomain: "qtrader-3fd6b.firebaseapp.com",
+            databaseURL: "https://qtrader-3fd6b-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "qtrader-3fd6b",
+            storageBucket: "qtrader-3fd6b.firebasestorage.app",
+            messagingSenderId: "746210099239",
+            appId: "1:746210099239:web:6b72d2ef5e044b09a04e02",
+            measurementId: "G-HECR0FG996"
+        };
+
+        // 初始化Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // 登录函数
+        window.login = async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorElement = document.getElementById('login-error');
+
+            // 参数非空校验
+            if (!email) {
+                errorElement.textContent = "请输入邮箱";
+                return;
+            }
+            if (!password) {
+                errorElement.textContent = "请输入密码";
+                return;
+            }
+
+            try {
+                errorElement.textContent = '';
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("登录失败详细信息：", {
+                    code: error.code,
+                    message: error.message
+                });
+
+                let errorMsg;
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMsg = "邮箱格式无效，请输入正确的邮箱（如 xxx@xxx.com）";
+                        break;
+                    case 'auth/user-not-found':
+                        errorMsg = "该邮箱未注册，请联系管理员添加账号";
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMsg = "邮箱或密码错误，请重新输入";
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMsg = "邮箱/密码登录功能未启用，请联系管理员";
+                        break;
+                    default:
+                        errorMsg = `登录失败：${error.message}（错误码：${error.code}）`;
+                }
+                errorElement.textContent = errorMsg;
+            }
+        };
+
+        // 退出登录
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("退出登录失败:", error);
+            }
+        };
+
+        // 监听认证状态变化
+        onAuthStateChanged(auth, (user) => {
+            const loginPage = document.getElementById('login-form');
+            const homePage = document.getElementById('home-page');
+            const stockPage = document.getElementById('stock-container');
+            const userInfo = document.getElementById('user-info');
+
+            if (user) {
+                // 用户已登录且有权限
+                loginPage.style.display = 'none';
+                homePage.style.display = 'block'; // 登录成功先显示首页
+                stockPage.style.display = 'none';
+                userInfo.innerHTML = `
+                    <span>当前登录: ${user.email}</span>
+                    <button class="logout-btn" onclick="logout()">退出登录</button>
+                `;
+                loadStockRecommendations();
+            } else {
+                // 未登录或无权限
+                loginPage.style.display = 'block';
+                homePage.style.display = 'none';
+                stockPage.style.display = 'none';
+                userInfo.innerHTML = '';
+                document.getElementById('stock-list').innerHTML = '<tr><td colspan="6" style="text-align:center" class="loading">加载中...</td></tr>';
+                document.getElementById('update-time').textContent = '-';
+            }
+        });
+
+        // 首页卡片点击事件
+        document.getElementById('card-matrix').addEventListener('click', () => {
+            const homePage = document.getElementById('home-page');
+            const stockPage = document.getElementById('stock-container');
+            homePage.style.display = 'none';
+            stockPage.style.display = 'block';
+            loadStockRecommendations();
+        });
+
+        document.getElementById('card-simulating').addEventListener('click', () => {
+            alert('Simulating Strategy 功能开发中');
+        });
+
+        document.getElementById('card-asterism').addEventListener('click', () => {
+            alert('Asterism Strategy 功能开发中');
+        });
+
+        document.getElementById('card-login').addEventListener('click', () => {
+            alert('Personnel Login 功能开发中');
+        });
+
+        // 加载股票数据
+        function loadStockRecommendations() {
+            const stockRef = ref(db, 'recommend');
+            const stockList = document.getElementById('stock-list');
+            const updateTimeEl = document.getElementById('update-time');
+
+            const latestDateQuery = query(
+                stockRef,
+                orderByKey(), // 按子节点名（日期）排序（YYYY-MM-DD 字典序=日期顺序）
+                limitToLast(1) // 只取最后 1 条（最新日期节点）
+            );
+
+            onValue(latestDateQuery, (snapshot) => {
+                stockList.innerHTML = '';
+
+                // 1. 处理无数据情况
+                if (!snapshot.exists()) {
+                    stockList.innerHTML = '<tr><td colspan="6" style="text-align:center">暂无推荐数据</td></tr>';
+                    updateTimeEl.textContent = '暂无更新';
+                    return;
+                }
+
+                // 2. 解析最新日期节点（snapshot 只包含 1 个节点：最新日期）
+                const latestDateData = snapshot.val(); // 格式：{ "2025-11-01": {data: [...], last_updated: ...} }
+                const latestDate = Object.keys(latestDateData)[0]; // 提取最新日期（如 "2025-11-01"）
+                const dateNode = latestDateData[latestDate]; // 最新日期节点的内容
+                const latestStocks = dateNode.data || []; // 最新日期的股票数组
+                const latestUpdateTime = dateNode.last_updated || Date.now(); // 最新更新时间戳
+
+                // 3. 处理无股票数据的情况
+                if (latestStocks.length === 0) {
+                    stockList.innerHTML = `<tr><td colspan="6" style="text-align:center">${latestDate} 暂无推荐数据</td></tr>`;
+                    updateTimeEl.textContent = new Date(latestUpdateTime).toLocaleString();
+                    return;
+                }
+
+                // 4. 按股票自身更新时间排序（最新股票在前）
+                latestStocks.sort((a, b) => {
+                    const aTime = a.last_updated || latestUpdateTime;
+                    const bTime = b.last_updated || latestUpdateTime;
+                    return bTime - aTime;
+                });
+
+                // 5. 更新页面显示
+                updateTimeEl.textContent = new Date(latestUpdateTime).toLocaleString();
+
+                // 6. 填充表格
+                latestStocks.forEach(stock => {
+                    const symbol = stock.symbol || '未知代码';
+                    const stockDate = stock.date || '—';
+                    const buyPrice = stock.buy_price || '—';
+                    const stopGain = stock.stop_gain || '—';
+                    const stopLoss = stock.stop_loss || '—';
+                    const strategies = stock.strategies?.join(', ') || '';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${symbol}</td>
+                        <td>${stockDate}</td>
+                        <td>${buyPrice}</td>
+                        <td>${stopGain}</td>
+                        <td>${stopLoss}</td>
+                        <td class="strategies">${strategies}</td>
+                    `;
+                    stockList.appendChild(row);
+                });
+            }, (error) => {
+                console.error("读取数据失败：", error.message);
+                const errorMsg = error.code === 'PERMISSION_DENIED'
+                    ? '您的账号没有访问权限'
+                    : '数据加载失败，请刷新重试';
+                stockList.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#e74c3c">${errorMsg}</td></tr>`;
+                if (error.code === 'PERMISSION_DENIED') setTimeout(() => signOut(auth), 3000);
+            });
+        }
+
+        // 忘记密码相关函数
+        // 打开模态框
+        window.openForgotPasswordModal = () => {
+            document.getElementById('forgot-password-modal').style.display = 'flex';
+            // 清空之前的错误/成功提示
+            document.getElementById('reset-error').textContent = '';
+            document.getElementById('reset-success').textContent = '';
+            // 聚焦输入框
+            document.getElementById('reset-email').focus();
+        };
+
+        // 关闭模态框
+        window.closeForgotPasswordModal = () => {
+            document.getElementById('forgot-password-modal').style.display = 'none';
+        };
+
+        // 发送重置密码邮件
+        window.sendResetPasswordEmail = async () => {
+            const email = document.getElementById('reset-email').value.trim();
+            const errorElement = document.getElementById('reset-error');
+            const successElement = document.getElementById('reset-success');
+
+            try {
+                errorElement.textContent = '';
+                successElement.textContent = '';
+
+                // 验证邮箱格式
+                if (!email.includes('@')) {
+                    throw new Error("请输入有效的邮箱地址");
+                }
+
+                // 调用Firebase API发送重置邮件
+                await sendPasswordResetEmail(auth, email, {
+                    url: window.location.origin  // 重置成功后跳转回当前页面（可选）
+                });
+
+                // 提示成功
+                successElement.textContent = "重置邮件已发送！请查收邮箱（含垃圾邮件）";
+                // 3秒后自动关闭模态框
+                setTimeout(closeForgotPasswordModal, 3000);
+            } catch (error) {
+                // 处理不同错误类型
+                let errorMsg;
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        errorMsg = "该邮箱未注册，请输入授权邮箱";
+                        break;
+                    case 'auth/invalid-email':
+                        errorMsg = "邮箱格式无效，请重新输入";
+                        break;
+                    default:
+                        errorMsg = `发送失败: ${error.message}`;
+                }
+                errorElement.textContent = errorMsg;
+            }
+        };
+
+        // 点击模态框外部关闭
+        window.onclick = (event) => {
+            const modal = document.getElementById('forgot-password-modal');
+            if (event.target === modal) {
+                closeForgotPasswordModal();
+            }
+        };
+
+    </script>
+</body>
+</html>
