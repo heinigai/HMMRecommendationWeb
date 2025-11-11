@@ -25,7 +25,7 @@
             background: rgba(15, 23, 42, 0.95);
             border-right: 1px solid rgba(109, 213, 250, 0.2);
             z-index: 90;
-            padding-top: 70px; /* 为顶部用户信息留出空间 */
+            padding-top: 60px; /* 减小顶部空间 */
         }
 
         .sidebar-logo {
@@ -77,7 +77,7 @@
 
         /* 股票数据页样式 */
         #stock-container {
-            padding: 20px;
+            padding: 5px;
             width: 100%;
         }
         .stock-table {
@@ -110,34 +110,64 @@
             top: 10px;
             right: 20px;
             z-index: 100;
-            display: flex;
+            display: none;
             align-items: center;
-            gap: 10px;
-            background: rgba(15, 23, 42, 0.8);
-            padding: 5px 15px;
-            border-radius: 20px;
-            border: 1px solid rgba(109, 213, 250, 0.2);
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .user-info span {
+        .user-info.visible {
+            display: flex;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar i {
+            color: #60a5fa;
+            font-size: 14px;
+        }
+
+        .user-email {
             color: #e2e8f0;
-            font-size: 0.9em;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
         .logout-btn {
-            background: linear-gradient(135deg, #ef4444, #f87171);
-            margin-left: 10px;
-            padding: 5px 12px;
-            width: auto;
-            font-size: 0.8em;
-            border: none;
-            border-radius: 4px;
-            color: white;
+            background: transparent;
+            border: 1px solid rgba(37, 99, 235, 0.5);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 16px;
+            color: #60a5fa;
             cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .logout-btn:hover {
-            background: linear-gradient(135deg, #dc2626, #ef4444);
+            background: rgba(37, 99, 235, 0.2);
+            border-color: #3b82f6;
+            color: #93c5fd;
+        }
+
+        .logout-btn i {
+            font-size: 0.9rem;
         }
         
         /* 模态框样式 */
@@ -368,10 +398,22 @@
             color: #e2e8f0;
         }
     </style>
+    <!-- 引入 Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 </head>
 <body>
     <!-- 用户信息和登出按钮 -->
-    <div class="user-info" id="user-info"></div>
+    <div class="user-info" id="user-info">
+        <div class="user-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <span class="user-email" id="user-email"></span>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>退出</span>
+        </button>
+    </div>
 
     <!-- 左侧导航栏 -->
     <div class="sidebar" id="sidebar">
@@ -572,12 +614,11 @@
         // 监听认证状态变化
         onAuthStateChanged(auth, (user) => {
             const userInfo = document.getElementById('user-info');
+            const userEmail = document.getElementById('user-email');
             
             if (user) {
-                userInfo.innerHTML = `
-                    <span>当前登录: ${user.email}</span>
-                    <button class="logout-btn" onclick="logout()">退出登录</button>
-                `;
+                userEmail.textContent = user.email;
+                userInfo.classList.add('visible');
                 loadStockRecommendations();
             } else {
                 // 未登录重定向到登录页
