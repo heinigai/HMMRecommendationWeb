@@ -12,18 +12,16 @@
             padding: 0;
             background: linear-gradient(135deg, #0f172a, #1e293b);
             color: #e2e8f0;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding-top: 70px; /* 为顶部用户信息留出空间 */
         }
 
         /* 登录页样式 */
         .login-container {
-            max-width: 600px; /* 增大登录表单宽度 */
-            width: 90%; /* 增加响应式支持 */
+            max-width: 500px;
+            width: 90%;
             margin: 50px auto;
-            padding: 30px; /* 增加内边距 */
+            padding: 30px;
             border: 1px solid rgba(109, 213, 250, 0.2);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.05);
@@ -140,7 +138,7 @@
         /* 首页样式 */
         #home-page {
             text-align: center;
-            padding: 60px 20px;
+<!--            padding: 60px 20px;-->
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -163,6 +161,7 @@
             gap: 30px;
             flex-wrap: wrap;
             margin-bottom: 60px;
+            max-width: 100%;
         }
         .card {
             background: rgba(255, 255, 255, 0.05);
@@ -173,6 +172,7 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            max-width: calc(100% - 40px);
         }
         .card:hover {
             background: rgba(109, 213, 250, 0.1);
@@ -219,8 +219,8 @@
         /* 股票数据页样式 */
         #stock-container {
             padding: 20px;
-            width: 80%; /* 增大宽度，使用百分比 */
-            max-width: 1600px; /* 增大最大宽度 */
+            width: 80%;
+            max-width: calc(100% - 40px);
             margin: 0 auto;
             display: none;
         }
@@ -335,16 +335,17 @@
 
         /* 调整首页样式以适应侧边栏 */
         #home-page {
-            margin-left: 220px; /* 与侧边栏宽度一致 */
+            margin: auto; /* 与侧边栏宽度一致 */
             width: calc(100% - 220px); /* 减去侧边栏宽度 */
+            max-width: calc(100% - 220px);
         }
         
         /* 调整功能页面样式以适应侧边栏 */
         #stock-container, #history-data {
-            margin-left: 220px; /* 与侧边栏宽度一致 */
-            width: calc(100% - 220px); /* 减去侧边栏宽度 */
-            padding: 20px 30px;
-            max-width: 1600px;
+            margin-left: 240px; /* 与侧边栏宽度一致 */
+            width: calc(100% - 280px); /* 减去侧边栏宽度 */
+            padding: 20px;
+            max-width: calc(100% - 220px);
         }
         
         #stock-container {
