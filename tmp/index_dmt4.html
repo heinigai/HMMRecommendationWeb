@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMTool4_V1.2</title>
+    <!-- 引入 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <!-- 引入 Tailwind CSS 用于样式 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 配置 Tailwind 自定义颜色 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        green_up: '#009600',
+                        red_down: '#c80000',
+                        gray_text: '#666666',
+                        border: '#e5e7eb'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .table-border {
+                border-collapse: collapse;
+            }
+            .cell-border {
+                border: 1px solid #e5e7eb;
+            }
+            .group-box {
+                border: 1px solid #e5e7eb;
+                border-radius: 4px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            .disabled-element {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-4 md:p-6 min-h-screen flex flex-col">
+    <div class="max-w-7xl mx-auto w-full flex-grow">
+        <!-- 标题区域 -->
+        <div class="flex justify-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-primary text-center">DMTool4_V1.2</h1>
+        </div>
+
+        <!-- 用户信息和更新时间 -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <!-- 用户信息区域 -->
+            <div id="user-info" class="hidden items-center gap-3 text-sm md:text-base">
+                <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                    <i class="fas fa-user text-primary"></i>
+                </div>
+                <span id="user-email" class="font-medium"></span>
+                <button id="logout-btn" class="text-primary hover:text-primary/80 transition-colors">
+                    <i class="fas fa-sign-out-alt mr-1"></i>退出
+                </button>
+            </div>
+
+            <!-- 更新时间 (默认隐藏，登录后显示) -->
+            <div id="update-time-container" class="text-sm text-gray_text hidden">
+                数据最近更新时间: <span id="last-update-time" class="font-medium">--</span>
+            </div>
+        </div>
+
+        <!-- 登录模态框 -->
+        <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 transform transition-all">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-primary">用户登录</h2>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                    <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入邮箱">
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" placeholder="请输入密码">
+                </div>
+
+                <button id="submit-login" class="w-full bg-primary text-white py-2 px-4 rounded hover:bg-primary/90 transition-colors btn-hover-effect">
+                    登录
+                </button>
+
+                <div id="login-error" class="text-red_down text-sm mt-4 hidden"></div>
+
+                <div class="text-gray_text text-xs mt-4">
+                    仅授权用户可登录
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区域 (默认隐藏，登录后显示) -->
+        <div id="main-content" class="hidden">
+            <!-- 主布局：左右两栏 -->
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- 左侧：指数信号表格区域 -->
+                <div class="w-full md:w-1/2 flex flex-col gap-6">
+                    <!-- 每日信号表格 -->
+                    <div class="group-box p-4">
+                        <h2 class="text-lg font-semibold mb-3">Daily Signal</h2>
+                        <table id="daily-table" class="w-full table-border text-sm">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="cell-border p-2 text-center">Item</th>
+                                    <th class="cell-border p-2 text-center">Open</th>
+                                    <th class="cell-border p-2 text-center">High</th>
+                                    <th class="cell-border p-2 text-center">Low</th>
+                                    <th class="cell-border p-2 text-center">Close</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 数据由JS动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 每周信号表格 -->
+                    <div class="group-box p-4">
+                        <h2 class="text-lg font-semibold mb-3">Weekly Signal</h2>
+                        <table id="weekly-table" class="w-full table-border text-sm">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="cell-border p-2 text-center">Item</th>
+                                    <th class="cell-border p-2 text-center">Open</th>
+                                    <th class="cell-border p-2 text-center">High</th>
+                                    <th class="cell-border p-2 text-center">Low</th>
+                                    <th class="cell-border p-2 text-center">Close</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 数据由JS动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 每月信号表格 -->
+                    <div class="group-box p-4">
+                        <h2 class="text-lg font-semibold mb-3">Monthly Signal</h2>
+                        <table id="monthly-table" class="w-full table-border text-sm">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="cell-border p-2 text-center">Item</th>
+                                    <th class="cell-border p-2 text-center">Open</th>
+                                    <th class="cell-border p-2 text-center">High</th>
+                                    <th class="cell-border p-2 text-center">Low</th>
+                                    <th class="cell-border p-2 text-center">Close</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 数据由JS动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 右侧：相关系数、运算式 -->
+                <div class="w-full md:w-1/2 flex flex-col gap-6">
+                    <!-- 相关系数和VIX区域 -->
+                    <div class="group-box p-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">相關係數：</span>
+                                <span id="corr-value" class="text-primary font-semibold">--</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">VIX：</span>
+                                <span id="vix-value" class="text-primary font-semibold">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 运算结果区域（只显示名称和结果） -->
+                    <div class="group-box p-4">
+                        <h2 class="text-lg font-semibold mb-3">運算結果</h2>
+                        <div id="function-area" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 未登录提示 - 登录按钮居中显示 -->
+        <div id="login-prompt" class="flex flex-col items-center justify-center py-16 text-center">
+            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <i class="fas fa-lock text-primary text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">请登录以访问系统</h2>
+            <p class="text-gray_text mb-8 max-w-md">只有授权用户可访问该系统</p>
+            <button id="login-btn" class="bg-primary text-white py-3 px-8 rounded-lg text-base font-medium hover:bg-primary/90 btn-hover-effect flex items-center gap-2">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>登录系统</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 初始化Firebase
+        const firebaseConfig = {
+          apiKey: "AIzaSyBE9Gw8VnTkF-7-SUxS7DqjFatnjuMN7-o",
+          authDomain: "dmtool4-mplus.firebaseapp.com",
+          databaseURL: "https://dmtool4-mplus-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "dmtool4-mplus",
+          storageBucket: "dmtool4-mplus.firebasestorage.app",
+          messagingSenderId: "538349208541",
+          appId: "1:538349208541:web:411703cb1e5d97caa3ec34"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // 初始化Firebase服务
+        const auth = firebase.auth();
+        const dataRef = firebase.database().ref('data/latest');
+
+        // 允许登录的特定账户列表
+        const ALLOWED_ACCOUNTS = [
+            "mplus_hermes@outlook.com",
+            "donece88@gmail.com",
+            "zhaozhipeng600@gmail.com"
+        ];
+
+        // DOM元素
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginModal = document.getElementById('login-modal');
+        const closeModal = document.getElementById('close-modal');
+        const submitLogin = document.getElementById('submit-login');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const userInfo = document.getElementById('user-info');
+        const userEmail = document.getElementById('user-email');
+        const mainContent = document.getElementById('main-content');
+        const loginPrompt = document.getElementById('login-prompt');
+        const loginError = document.getElementById('login-error');
+        const updateTimeContainer = document.getElementById('update-time-container');
+
+        // 登录函数
+        function login() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // 验证输入
+            if (!email || !password) {
+                showError("请输入邮箱和密码");
+                return;
+            }
+
+            // 检查是否为允许的账户
+            if (!ALLOWED_ACCOUNTS.includes(email)) {
+                showError("该账户未被授权访问");
+                return;
+            }
+
+            // 调用Firebase登录
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // 登录成功
+                    const user = userCredential.user;
+                    console.log("登录成功:", user.email);
+                    loginModal.classList.add('hidden');
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    loginError.classList.add('hidden');
+                })
+                .catch((error) => {
+                    // 处理登录错误
+                    const errorCode = error.code;
+                    let errorMessage = "登录失败，请检查您的邮箱和密码";
+
+                    if (errorCode === 'auth/user-not-found') {
+                        errorMessage = "该用户不存在";
+                    } else if (errorCode === 'auth/wrong-password') {
+                        errorMessage = "密码错误";
+                    } else if (errorCode === 'auth/invalid-email') {
+                        errorMessage = "邮箱格式无效";
+                    }
+
+                    showError(errorMessage);
+                    console.error("登录错误:", errorCode, errorMessage);
+                });
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            loginError.textContent = message;
+            loginError.classList.remove('hidden');
+
+            // 3秒后自动隐藏错误信息
+            setTimeout(() => {
+                loginError.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 监听用户登录状态变化
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // 用户已登录
+                if (ALLOWED_ACCOUNTS.includes(user.email)) {
+                    loginBtn.classList.add('hidden');
+                    userInfo.classList.remove('hidden');
+                    userInfo.classList.add('flex');
+                    userEmail.textContent = user.email;
+                    mainContent.classList.remove('hidden');
+                    loginPrompt.classList.add('hidden');
+                    updateTimeContainer.classList.remove('hidden');
+
+                    // 加载数据
+                    loadData();
+                } else {
+                    // 不在允许列表中，强制登出
+                    auth.signOut();
+                    showError("该账户未被授权访问");
+                    loginModal.classList.remove('hidden');
+                    updateTimeContainer.classList.add('hidden');
+                }
+            } else {
+                // 用户未登录
+                loginBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                mainContent.classList.add('hidden');
+                loginPrompt.classList.remove('hidden');
+                updateTimeContainer.classList.add('hidden');
+            }
+        });
+
+        // 事件监听
+        loginBtn.addEventListener('click', () => {
+            loginModal.classList.remove('hidden');
+            loginError.classList.add('hidden');
+            emailInput.value = '';
+            passwordInput.value = '';
+        });
+
+        closeModal.addEventListener('click', () => {
+            loginModal.classList.add('hidden');
+        });
+
+        submitLogin.addEventListener('click', login);
+
+        // 支持按Enter键登录
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                // 退出成功
+            }).catch((error) => {
+                console.error('退出登录失败:', error);
+            });
+        });
+
+        // 点击模态框外部关闭
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                loginModal.classList.add('hidden');
+            }
+        });
+
+        // 格式化日期时间的函数
+        function formatDateTime(timestamp) {
+            if (!timestamp || isNaN(timestamp) || timestamp <= 0) {
+                return "--";
+            }
+
+            const date = new Date(timestamp);
+
+            if (isNaN(date.getTime())) {
+                return "--";
+            }
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // 加载数据
+        function loadData() {
+            dataRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // 处理更新时间
+                    document.getElementById('last-update-time').textContent = formatDateTime(data.timestamp);
+
+                    // 更新表格数据
+                    updateTable('daily-table', data.daily_spx, data.daily_dji);
+                    updateTable('weekly-table', data.weekly_spx, data.weekly_dji);
+                    updateTable('monthly-table', data.monthly_spx, data.monthly_dji);
+
+                    // 更新相关系数和VIX
+                    document.getElementById('corr-value').textContent = typeof data.corr === 'number'
+                        ? data.corr.toFixed(2)
+                        : '--';
+
+                    document.getElementById('vix-value').textContent = typeof data.vix === 'number'
+                        ? data.vix.toFixed(2)
+                        : '--';
+
+                    // 更新运算结果
+                    updateFunctionResults(data.func_res_data || {});
+                }
+            }, (error) => {
+                console.error("获取数据时出错:", error);
+            });
+        }
+
+        // 更新表格数据
+        function updateTable(tableId, spx, dji) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (!spx || !dji) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `<td class="cell-border p-2 text-center" colspan="5">无数据</td>`;
+                tbody.appendChild(emptyRow);
+                return;
+            }
+
+            // 构建SPX行
+            const row0 = document.createElement('tr');
+            row0.innerHTML = `
+                <td class="cell-border p-2 text-center" rowspan="2">SPX</td>
+                <td class="cell-border p-2 text-center" rowspan="2">${formatNumber(spx.open)}</td>
+                <td class="cell-border p-2 text-center">${formatNumber(spx.high)}</td>
+                <td class="cell-border p-2 text-center">${formatNumber(spx.low)}</td>
+                <td class="cell-border p-2 text-center">${formatNumber(spx.close)}</td>
+            `;
+            tbody.appendChild(row0);
+
+            const row1 = document.createElement('tr');
+            row1.innerHTML = `
+                <td class="cell-border p-2 text-center ${getColorClass(spx.high_diff)}">${formatNumber(spx.high_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(spx.low_diff)}">${formatNumber(spx.low_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(spx.close_diff)}">${formatNumber(spx.close_diff)}</td>
+            `;
+            tbody.appendChild(row1);
+
+            // 构建Dow Jones行
+            const row2 = document.createElement('tr');
+            row2.innerHTML = `
+                <td class="cell-border p-2 text-center" rowspan="2">Dow Jones</td>
+                <td class="cell-border p-2 text-center" rowspan="2">${formatNumber(dji.open)}</td>
+                <td class="cell-border p-2 text-center">${formatNumber(dji.high)}</td>
+                <td class="cell-border p-2 text-center">${formatNumber(dji.low)}</td>
+                <td class="cell-border p-2 text-center">${formatNumber(dji.close)}</td>
+            `;
+            tbody.appendChild(row2);
+
+            const row3 = document.createElement('tr');
+            row3.innerHTML = `
+                <td class="cell-border p-2 text-center ${getColorClass(dji.high_diff)}">${formatNumber(dji.high_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(dji.low_diff)}">${formatNumber(dji.low_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(dji.close_diff)}">${formatNumber(dji.close_diff)}</td>
+            `;
+            tbody.appendChild(row3);
+        }
+
+        // 格式化数字显示
+        function formatNumber(value) {
+            if (value === undefined || value === null || isNaN(value)) {
+                return "--";
+            }
+            return Number(value).toFixed(2);
+        }
+
+        // 根据数值正负返回颜色类
+        function getColorClass(value) {
+            if (value === undefined || value === null || isNaN(value)) {
+                return '';
+            }
+            if (value > 0) return 'text-green_up font-medium';
+            if (value < 0) return 'text-red_down font-medium';
+            return '';
+        }
+
+        // 更新运算结果
+        function updateFunctionResults(funcRes) {
+            const funcArea = document.getElementById('function-area');
+            funcArea.innerHTML = `
+                <div class="grid grid-cols-2 gap-2 text-sm mb-2 font-medium">
+                    <div>名稱</div>
+                    <div>結果</div>
+                </div>
+                ${['FO', 'FH', 'FL', 'FC'].map(key => `
+                    <div class="grid grid-cols-2 gap-2 items-center">
+                        <div>${key}</div>
+                        <div class="font-medium">${funcRes[key] !== undefined ? funcRes[key] : '--'}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
+    </script>
+</body>
+</html>
