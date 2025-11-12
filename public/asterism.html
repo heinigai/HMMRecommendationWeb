@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asterism 策略 - 股票推荐系统</title>
+    <title>Asterism 策略</title>
     <style>
         /* 全局样式 */
         body {
@@ -72,27 +72,21 @@
         .main-content {
             flex: 1;
             margin-left: 220px;
-            padding: 20px;
+            padding: 20px 30px 20px 20px; /* 添加右边距 */
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         .content-container {
-            text-align: center;
+            width: 100%;
         }
 
         .content-container h1 {
             color: #6dd5fa;
             font-size: 2.5em;
             margin-bottom: 20px;
-        }
-
-        .content-container p {
-            color: #a8dadc;
-            font-size: 1.2em;
+            text-align: center;
         }
 
         /* 用户信息样式 */
@@ -213,24 +207,12 @@
             background: rgba(255, 255, 250, 0.1);
             color: #6dd5fa;
         }
-        .modal-footer { 
-            margin-top: 25px; 
-            text-align: right; 
+        .modal-footer {
+            margin-top: 25px;
+            text-align: right;
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-        }
-        .cancel-btn { 
-            background: rgba(255, 255, 255, 0.05);
-            color: #a8dadc;
-            border: 1px solid rgba(109, 213, 250, 0.3);
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .cancel-btn:hover { 
-            background: rgba(109, 213, 250, 0.1);
-            color: #6dd5fa;
         }
         .form-group {
             margin-bottom: 20px;
@@ -254,16 +236,6 @@
             outline: none;
             border-color: #6dd5fa;
         }
-        .error-message {
-            color: #ef4444;
-            margin: 10px 0;
-            text-align: center;
-        }
-        .success-message {
-            color: #34d399;
-            margin: 10px 0;
-            text-align: center;
-        }
         .modal-footer button {
             padding: 10px 20px;
             background: linear-gradient(135deg, #3b82f6, #60a5fa);
@@ -276,6 +248,149 @@
         }
         .modal-footer button:hover {
             background: linear-gradient(135deg, #2563eb, #4f97f7);
+        }
+
+        /* 添加缺失的CSS工具类 */
+        .flex {
+            display: flex;
+        }
+        
+        .grid {
+            display: grid;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .font-semibold {
+            font-weight: 600;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+        }
+        
+        .mb-8 {
+            margin-bottom: 2rem;
+        }
+        
+        .mb-3 {
+            margin-bottom: 0.75rem;
+        }
+        
+        .gap-4 {
+            gap: 1rem;
+        }
+        
+        .gap-2 {
+            gap: 0.5rem;
+        }
+        
+        .gap-6 {
+            gap: 1.5rem;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        
+        .text-lg {
+            font-size: 1.125rem;
+            line-height: 1.75rem;
+        }
+        
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        .p-2 {
+            padding: 0.5rem;
+        }
+        
+        .space-y-2 > :not([hidden]) ~ :not([hidden]) {
+            --tw-space-y-reverse: 0;
+            margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+            margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+        }
+        
+        @media (min-width: 768px) {
+            .md\:flex-row {
+                flex-direction: row;
+            }
+            
+            .md\:w-1/2 {
+                width: 50%;
+            }
+            
+            .md\:text-3xl {
+                font-size: 1.875rem;
+                line-height: 2.25rem;
+            }
+        }
+        
+        /* 新增响应式布局类 */
+        @media (max-width: 1024px) {
+            .lg\:flex-col {
+                flex-direction: column;
+            }
+            
+            .lg\:w-full {
+                width: 100%;
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .lg\:flex-row {
+                flex-direction: row;
+            }
+            
+            .lg\:w-1\/2 {
+                width: 50%;
+            }
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .col-span-5 {
+            grid-column: span 5 / span 5;
+        }
+        
+        .table-border {
+            border-collapse: collapse;
+        }
+        
+        .cell-border {
+            border: 1px solid rgba(109, 213, 250, 0.3);
+        }
+        
+        .group-box {
+            border: 1px solid rgba(109, 213, 250, 0.3);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .text-green_up {
+            color: #009600;
+        }
+        
+        .text-red_down {
+            color: #c80000;
         }
     </style>
     <!-- 引入 Font Awesome 图标 -->
@@ -322,32 +437,111 @@
 
     <!-- 主内容区域 -->
     <div class="main-content">
-        <div class="content-container">
-            <h1>Asterism 策略</h1>
-            <p>功能开发中，敬请期待</p>
+        <div class="content-container" id="main-content">
+            <!-- 标题区域 -->
+            <div class="flex justify-center mb-8">
+                <h1 class="text-2xl md:text-3xl font-bold" style="color: #6dd5fa;">Asterism 策略</h1>
+            </div>
+
+            <!-- 用户信息和更新时间 -->
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                <!-- 更新时间 -->
+                <div id="update-time-container" class="text-sm" style="color: #a8dadc;">
+                    数据最近更新时间: <span id="last-update-time" class="font-medium">--</span>
+                </div>
+            </div>
+
+            <!-- 主布局：左右两栏 -->
+            <div class="flex lg:flex-row gap-6 w-full">
+                <!-- 左侧：指数信号表格区域 -->
+                <div class="w-full lg:w-1/2 flex-col gap-6">
+                    <!-- 信号表格容器 -->
+                    <div class="flex-col gap-6">
+                        <!-- 每日信号表格 -->
+                        <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <h2 class="text-lg font-semibold mb-3" style="color: #6dd5fa;">Daily Signal</h2>
+                            <table id="daily-table" class="w-full table-border text-sm" style="border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: rgba(109, 213, 250, 0.1);">
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Item</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Open</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">High</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Low</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Close</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 数据由JS动态填充 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 每周信号表格 -->
+                        <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <h2 class="text-lg font-semibold mb-3" style="color: #6dd5fa;">Weekly Signal</h2>
+                            <table id="weekly-table" class="w-full table-border text-sm" style="border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: rgba(109, 213, 250, 0.1);">
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Item</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Open</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">High</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Low</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Close</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 数据由JS动态填充 -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 每月信号表格 -->
+                        <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <h2 class="text-lg font-semibold mb-3" style="color: #6dd5fa;">Monthly Signal</h2>
+                            <table id="monthly-table" class="w-full table-border text-sm" style="border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: rgba(109, 213, 250, 0.1);">
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Item</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Open</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">High</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Low</th>
+                                        <th class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3);">Close</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 数据由JS动态填充 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：相关系数、运算式 -->
+                <div class="w-full lg:w-1/2 flex-col gap-6">
+                    <!-- 相关系数和VIX区域 -->
+                    <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium" style="color: #a8dadc;">相關係數：</span>
+                                <span id="corr-value" class="font-semibold" style="color: #6dd5fa;">--</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium" style="color: #a8dadc;">VIX：</span>
+                                <span id="vix-value" class="font-semibold" style="color: #6dd5fa;">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 运算结果区域（只显示名称和结果） -->
+                    <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <h2 class="text-lg font-semibold mb-3" style="color: #6dd5fa;">運算結果</h2>
+                        <div id="function-area" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
-    <!-- 忘记密码模态框 -->
-    <div class="modal" id="forgot-password-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">重置密码</h3>
-                <button class="close-modal" onclick="closeForgotPasswordModal()">×</button>
-            </div>
-            <div class="form-group">
-                <label for="reset-email">输入您的授权邮箱</label>
-                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required>
-            </div>
-            <div class="error-message" id="reset-error"></div>
-            <div class="success-message" id="reset-success"></div>
-            <div class="modal-footer">
-                <button class="cancel-btn" onclick="closeForgotPasswordModal()">取消</button>
-                <button onclick="sendResetPasswordEmail()">发送重置邮件</button>
-            </div>
-        </div>
-    </div>
-
     <script type="module">
         // 导入Firebase模块
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
@@ -357,22 +551,27 @@
             onAuthStateChanged,
             sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import {
+            getDatabase,
+            ref,
+            onValue
+        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
         // Firebase配置
         const firebaseConfig = {
-            apiKey: "AIzaSyDHd6LoUOSlDm-Nj6c8NSXdtGw5HvPi3I4",
-            authDomain: "qtrader-3fd6b.firebaseapp.com",
-            databaseURL: "https://qtrader-3fd6b-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "qtrader-3fd6b",
-            storageBucket: "qtrader-3fd6b.firebasestorage.app",
-            messagingSenderId: "746210099239",
-            appId: "1:746210099239:web:6b72d2ef5e044b09a04e02",
-            measurementId: "G-HECR0FG996"
+          apiKey: "AIzaSyBE9Gw8VnTkF-7-SUxS7DqjFatnjuMN7-o",
+          authDomain: "dmtool4-mplus.firebaseapp.com",
+          databaseURL: "https://dmtool4-mplus-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "dmtool4-mplus",
+          storageBucket: "dmtool4-mplus.firebasestorage.app",
+          messagingSenderId: "538349208541",
+          appId: "1:538349208541:web:411703cb1e5d97caa3ec34"
         };
 
         // 初始化Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const database = getDatabase(app);
 
         // 退出登录
         window.logout = async () => {
@@ -392,6 +591,8 @@
             if (user) {
                 userEmail.textContent = user.email;
                 userInfo.classList.add('visible');
+                // 加载数据
+                loadData();
             } else {
                 // 未登录重定向到登录页
                 window.location.href = 'index.html';
@@ -430,70 +631,145 @@
             });
         });
         
-        // 忘记密码相关函数
-        // 打开模态框
-        window.openForgotPasswordModal = () => {
-            document.getElementById('forgot-password-modal').style.display = 'flex';
-            // 清空之前的错误/成功提示
-            document.getElementById('reset-error').textContent = '';
-            document.getElementById('reset-success').textContent = '';
-            // 聚焦输入框
-            document.getElementById('reset-email').focus();
-        };
-
-        // 关闭模态框
-        window.closeForgotPasswordModal = () => {
-            document.getElementById('forgot-password-modal').style.display = 'none';
-        };
-
-        // 发送重置密码邮件
-        window.sendResetPasswordEmail = async () => {
-            const email = document.getElementById('reset-email').value.trim();
-            const errorElement = document.getElementById('reset-error');
-            const successElement = document.getElementById('reset-success');
-
-            try {
-                errorElement.textContent = '';
-                successElement.textContent = '';
-
-                // 验证邮箱格式
-                if (!email.includes('@')) {
-                    throw new Error("请输入有效的邮箱地址");
-                }
-
-                // 调用Firebase API发送重置邮件
-                await sendPasswordResetEmail(auth, email, {
-                    url: window.location.origin  // 重置成功后跳转回当前页面（可选）
-                });
-
-                // 提示成功
-                successElement.textContent = "重置邮件已发送！请查收邮箱（含垃圾邮件）";
-                // 3秒后自动关闭模态框
-                setTimeout(closeForgotPasswordModal, 3000);
-            } catch (error) {
-                // 处理不同错误类型
-                let errorMsg;
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMsg = "该邮箱未注册，请输入授权邮箱";
-                        break;
-                    case 'auth/invalid-email':
-                        errorMsg = "邮箱格式无效，请重新输入";
-                        break;
-                    default:
-                        errorMsg = `发送失败: ${error.message}`;
-                }
-                errorElement.textContent = errorMsg;
+        // 格式化日期时间的函数
+        function formatDateTime(timestamp) {
+            if (!timestamp || isNaN(timestamp) || timestamp <= 0) {
+                return "--";
             }
-        };
 
-        // 点击模态框外部关闭
-        window.onclick = (event) => {
-            const modal = document.getElementById('forgot-password-modal');
-            if (event.target === modal) {
-                closeForgotPasswordModal();
+            const date = new Date(timestamp);
+
+            if (isNaN(date.getTime())) {
+                return "--";
             }
-        };
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        // 加载数据
+        function loadData() {
+            const dataRef = ref(database, 'data/latest');
+            onValue(dataRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // 处理更新时间
+                    document.getElementById('last-update-time').textContent = formatDateTime(data.timestamp);
+
+                    // 更新表格数据
+                    updateTable('daily-table', data.daily_spx, data.daily_dji);
+                    updateTable('weekly-table', data.weekly_spx, data.weekly_dji);
+                    updateTable('monthly-table', data.monthly_spx, data.monthly_dji);
+
+                    // 更新相关系数和VIX
+                    document.getElementById('corr-value').textContent = typeof data.corr === 'number'
+                        ? data.corr.toFixed(2)
+                        : '--';
+
+                    document.getElementById('vix-value').textContent = typeof data.vix === 'number'
+                        ? data.vix.toFixed(2)
+                        : '--';
+
+                    // 更新运算结果
+                    updateFunctionResults(data.func_res_data || {});
+                }
+            }, (error) => {
+                console.error("获取数据时出错:", error);
+            });
+        }
+
+        // 更新表格数据
+        function updateTable(tableId, spx, dji) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (!spx || !dji) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `<td class="cell-border p-2 text-center" colspan="5" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">无数据</td>`;
+                tbody.appendChild(emptyRow);
+                return;
+            }
+
+            // 构建SPX行
+            const row0 = document.createElement('tr');
+            row0.innerHTML = `
+                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">SPX</td>
+                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(spx.open)}</td>
+                <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(spx.high)}</td>
+                <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(spx.low)}</td>
+                <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(spx.close)}</td>
+            `;
+            tbody.appendChild(row0);
+
+            const row1 = document.createElement('tr');
+            row1.innerHTML = `
+                <td class="cell-border p-2 text-center ${getColorClass(spx.high_diff)}" style="border: 1px solid rgba(109, 213, 250, 0.3);">${formatNumber(spx.high_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(spx.low_diff)}" style="border: 1px solid rgba(109, 213, 250, 0.3);">${formatNumber(spx.low_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(spx.close_diff)}" style="border: 1px solid rgba(109, 213, 250, 0.3);">${formatNumber(spx.close_diff)}</td>
+            `;
+            tbody.appendChild(row1);
+
+            // 构建Dow Jones行
+            const row2 = document.createElement('tr');
+            row2.innerHTML = `
+                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">Dow Jones</td>
+                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(dji.open)}</td>
+                <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(dji.high)}</td>
+                <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(dji.low)}</td>
+                <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(dji.close)}</td>
+            `;
+            tbody.appendChild(row2);
+
+            const row3 = document.createElement('tr');
+            row3.innerHTML = `
+                <td class="cell-border p-2 text-center ${getColorClass(dji.high_diff)}" style="border: 1px solid rgba(109, 213, 250, 0.3);">${formatNumber(dji.high_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(dji.low_diff)}" style="border: 1px solid rgba(109, 213, 250, 0.3);">${formatNumber(dji.low_diff)}</td>
+                <td class="cell-border p-2 text-center ${getColorClass(dji.close_diff)}" style="border: 1px solid rgba(109, 213, 250, 0.3);">${formatNumber(dji.close_diff)}</td>
+            `;
+            tbody.appendChild(row3);
+        }
+
+        // 格式化数字显示
+        function formatNumber(value) {
+            if (value === undefined || value === null || isNaN(value)) {
+                return "--";
+            }
+            return Number(value).toFixed(2);
+        }
+
+        // 根据数值正负返回颜色类
+        function getColorClass(value) {
+            if (value === undefined || value === null || isNaN(value)) {
+                return '';
+            }
+            if (value > 0) return 'text-green_up';
+            if (value < 0) return 'text-red_down';
+            return '';
+        }
+
+        // 更新运算结果
+        function updateFunctionResults(funcRes) {
+            const funcArea = document.getElementById('function-area');
+            funcArea.innerHTML = `
+                <div class="grid grid-cols-2 gap-2 text-sm mb-2 font-medium">
+                    <div style="color: #a8dadc;">名稱</div>
+                    <div style="color: #a8dadc;">結果</div>
+                </div>
+                ${['FO', 'FH', 'FL', 'FC'].map(key => `
+                    <div class="grid grid-cols-2 gap-2 items-center">
+                        <div style="color: #a8dadc;">${key}</div>
+                        <div class="font-medium" style="color: #6dd5fa;">${funcRes[key] !== undefined ? funcRes[key] : '--'}</div>
+                    </div>
+                `).join('')}
+            `;
+        }
     </script>
 </body>
 </html>
