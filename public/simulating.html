@@ -73,26 +73,17 @@
             flex: 1;
             margin-left: 220px;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
 
         .content-container {
-            text-align: center;
+            width: 100%;
         }
 
         .content-container h1 {
             color: #6dd5fa;
             font-size: 2.5em;
             margin-bottom: 20px;
-        }
-
-        .content-container p {
-            color: #a8dadc;
-            font-size: 1.2em;
+            text-align: center;
         }
 
         /* 用户信息样式 */
@@ -277,6 +268,142 @@
         .modal-footer button:hover {
             background: linear-gradient(135deg, #2563eb, #4f97f7);
         }
+        
+        /* Tab样式 */
+        .tab-container {
+            display: flex;
+            margin: 20px 0;
+            border-bottom: 1px solid rgba(109, 213, 250, 0.3);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #a8dadc;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 5px;
+            width: auto;
+        }
+
+        .tab-btn.active {
+            color: #6dd5fa;
+            border-bottom: 2px solid #6dd5fa;
+        }
+
+        .tab-btn:hover {
+            background: rgba(109, 213, 250, 0.1);
+            color: #6dd5fa;
+        }
+        
+        /* 表格样式 */
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .stock-table th, .stock-table td {
+            border: 1px solid rgba(109, 213, 250, 0.2);
+            padding: 12px;
+            text-align: left;
+            font-size: 0.95em;
+        }
+        .stock-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: #6dd5fa;
+        }
+        
+        /* 搜索和筛选控件样式 */
+        #overview-search, #overview-filter {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid rgba(109, 213, 250, 0.3);
+            border-radius: 4px;
+            background: rgba(15, 23, 42, 0.9);
+            color: #e2e8f0;
+            font-size: 0.9em;
+        }
+
+        #overview-search {
+            width: 200px;
+        }
+        
+        #overview-filter {
+            background: rgba(15, 23, 42, 0.9);
+        }
+        
+        /* 分页按钮样式 */
+        .pagination-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: #a8dadc;
+            border: 1px solid rgba(109, 213, 250, 0.3);
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pagination-btn:hover {
+            background: rgba(109, 213, 250, 0.1);
+            color: #6dd5fa;
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 现代化分页按钮样式 */
+        .pagination-btn-modern {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(109, 213, 250, 0.4);
+            border-radius: 4px;
+            padding: 6px 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-btn-modern:hover:not(:disabled) {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-color: #60a5fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pagination-btn-modern:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: rgba(15, 23, 42, 0.7);
+        }
+        
+        /* 分页下拉框样式 */
+        #page-size {
+            background: rgba(255, 255, 255, 0.05);
+            color: #a8dadc;
+            border: 1px solid rgba(109, 213, 250, 0.3);
+            border-radius: 4px;
+            padding: 5px;
+        }
+        
+        #page-size:focus {
+            outline: none;
+            border-color: #6dd5fa;
+        }
+        
+        #page-size option {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        /* 暂无数据样式 */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #a8dadc;
+        }
     </style>
     <!-- 引入 Font Awesome 图标 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -298,7 +425,7 @@
     <!-- 左侧导航栏 -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-logo">
-            <h2>Asterism</h2>
+            <h2>Asterism Capital</h2>
         </div>
         <ul class="sidebar-menu">
             <li class="nav-item active">
@@ -324,26 +451,151 @@
     <div class="main-content">
         <div class="content-container">
             <h1>模拟分析</h1>
-            <p>功能开发中，敬请期待</p>
-        </div>
-    </div>
-    
-    <!-- 忘记密码模态框 -->
-    <div class="modal" id="forgot-password-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">重置密码</h3>
-                <button class="close-modal" onclick="closeForgotPasswordModal()">×</button>
+            
+            <!-- Tab切换 -->
+            <div class="tab-container">
+                <button class="tab-btn active" data-tab="overview">概览</button>
+                <button class="tab-btn" data-tab="detail">详情</button>
             </div>
-            <div class="form-group">
-                <label for="reset-email">输入您的授权邮箱</label>
-                <input type="email" id="reset-email" placeholder="请输入注册时的邮箱" required>
+            
+            <!-- 概览内容 -->
+            <div id="overview-tab">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <div>股票代码:</div>
+                        <input type="text" id="overview-search" placeholder="搜索股票代码..." />
+                        <div>策略:</div>
+                        <select id="overview-filter">
+                            <option value="">ALL</option>
+                            <option value="R1">R1</option>
+                            <option value="R2">R2</option>
+                            <option value="R3">R3</option>
+                            <option value="R4">R4</option>
+                            <option value="R5">R5</option>
+                            <option value="R6">R6</option>
+                            <option value="R7">R7</option>
+                            <option value="R8">R8</option>
+                        </select>
+                        <div>G值:</div>
+                        <select id="g-filter">
+                            <option value="">ALL</option>
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="6">6</option>
+                            <option value="8">8</option>
+                            <option value="10">10</option>
+                            <option value="12">12</option>
+                            <option value="14">14</option>
+                            <option value="16">16</option>
+                            <option value="18">18</option>
+                            <option value="20" selected>20</option>
+                            <option value="22">22</option>
+                            <option value="24">24</option>
+                            <option value="26">26</option>
+                            <option value="28">28</option>
+                            <option value="30">30</option>
+                            <option value="32">32</option>
+                            <option value="34">34</option>
+                            <option value="36">36</option>
+                            <option value="38">38</option>
+                            <option value="40">40</option>
+                        </select>
+                        <div>L值:</div>
+                        <select id="l-filter">
+                            <option value="">ALl</option>
+                            <option value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="6">6</option>
+                            <option value="8">8</option>
+                            <option value="10">10</option>
+                            <option value="12">12</option>
+                            <option value="14">14</option>
+                            <option value="16">16</option>
+                            <option value="18">18</option>
+                            <option value="20" selected>20</option>
+                            <option value="22">22</option>
+                            <option value="24">24</option>
+                            <option value="26">26</option>
+                            <option value="28">28</option>
+                            <option value="30">30</option>
+                            <option value="32">32</option>
+                            <option value="34">34</option>
+                            <option value="36">36</option>
+                            <option value="38">38</option>
+                            <option value="40">40</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th>股票代码</th>
+                            <th>策略</th>
+                            <th>G</th>
+                            <th>L</th>
+                            <th>Total</th>
+                            <th>Avg</th>
+                            <th>Keep</th>
+                            <th>Move</th>
+                            <th>M_avg</th>
+                            <th>M_keep</th>
+                            <th>Gain</th>
+                            <th>G_avg</th>
+                            <th>G_keep</th>
+                            <th>Loss</th>
+                            <th>L_avg</th>
+                            <th>L_keep</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overview-table-body">
+                        <tr><td colspan="16" style="text-align:center" class="loading">加载中...</td></tr>
+                    </tbody>
+                </table>
+                
+                <div id="overview-pagination" style="position: relative; margin-top: 20px; min-height: 50px;">
+                    <div style="position: absolute; bottom: 0; right: 0; display: flex; align-items: center; gap: 10px; background: rgba(30, 41, 59, 0.75); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(109, 213, 250, 0.3); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
+                        <span id="overview-page-info" style="font-size: 0.9em; color: #cbd5e1; min-width: 100px; text-align: center;"></span>
+                        <div style="display: flex; gap: 5px; align-items: center;">
+                            <button id="overview-first-page" class="pagination-btn pagination-btn-modern" title="首页">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="11 19 2 12 11 5 11 19"></polygon>
+                                    <polygon points="22 19 13 12 22 5 22 19"></polygon>
+                                </svg>
+                            </button>
+                            <button id="overview-prev-page" class="pagination-btn pagination-btn-modern" title="上一页">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="15 18 9 12 15 6 15 18"></polygon>
+                                </svg>
+                            </button>
+                            <select id="overview-page-size" style="margin: 0 5px;">
+                                <option value="10">10条/页</option>
+                                <option value="20" selected>20条/页</option>
+                                <option value="50">50条/页</option>
+                                <option value="100">100条/页</option>
+                            </select>
+                            <button id="overview-next-page" class="pagination-btn pagination-btn-modern" title="下一页">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="9 18 15 12 9 6 9 18"></polygon>
+                                </svg>
+                            </button>
+                            <button id="overview-last-page" class="pagination-btn pagination-btn-modern" title="末页">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="13 19 22 12 13 5 13 19"></polygon>
+                                    <polygon points="2 19 11 12 2 5 2 19"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="error-message" id="reset-error"></div>
-            <div class="success-message" id="reset-success"></div>
-            <div class="modal-footer">
-                <button class="cancel-btn" onclick="closeForgotPasswordModal()">取消</button>
-                <button onclick="sendResetPasswordEmail()">发送重置邮件</button>
+            
+            <!-- 详情内容 -->
+            <div id="detail-tab" style="display: none;">
+                <div class="no-data">
+                    <h3>暂无数据</h3>
+                    <p>详情数据正在开发中</p>
+                </div>
             </div>
         </div>
     </div>
@@ -357,6 +609,11 @@
             onAuthStateChanged,
             sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import {
+            getDatabase,
+            ref,
+            onValue
+        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
         // Firebase配置
         const firebaseConfig = {
@@ -373,6 +630,7 @@
         // 初始化Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const database = getDatabase(app);
 
         // 退出登录
         window.logout = async () => {
@@ -392,6 +650,8 @@
             if (user) {
                 userEmail.textContent = user.email;
                 userInfo.classList.add('visible');
+                // 加载数据
+                loadOverviewData();
             } else {
                 // 未登录重定向到登录页
                 window.location.href = 'index.html';
@@ -430,70 +690,221 @@
             });
         });
         
-        // 忘记密码相关函数
-        // 打开模态框
-        window.openForgotPasswordModal = () => {
-            document.getElementById('forgot-password-modal').style.display = 'flex';
-            // 清空之前的错误/成功提示
-            document.getElementById('reset-error').textContent = '';
-            document.getElementById('reset-success').textContent = '';
-            // 聚焦输入框
-            document.getElementById('reset-email').focus();
-        };
-
-        // 关闭模态框
-        window.closeForgotPasswordModal = () => {
-            document.getElementById('forgot-password-modal').style.display = 'none';
-        };
-
-        // 发送重置密码邮件
-        window.sendResetPasswordEmail = async () => {
-            const email = document.getElementById('reset-email').value.trim();
-            const errorElement = document.getElementById('reset-error');
-            const successElement = document.getElementById('reset-success');
-
-            try {
-                errorElement.textContent = '';
-                successElement.textContent = '';
-
-                // 验证邮箱格式
-                if (!email.includes('@')) {
-                    throw new Error("请输入有效的邮箱地址");
+        // Tab切换功能
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // 更新激活状态
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // 显示对应的Tab内容
+                const tabName = button.getAttribute('data-tab');
+                document.getElementById('overview-tab').style.display = tabName === 'overview' ? 'block' : 'none';
+                document.getElementById('detail-tab').style.display = tabName === 'detail' ? 'block' : 'none';
+            });
+        });
+        
+        // 概览数据相关变量
+        let overviewData = [];
+        let filteredOverviewData = [];
+        let currentOverviewPage = 1;
+        let overviewPageSize = 20;
+        let currentOverviewFilter = '';
+        let currentOverviewSearch = '';
+        let currentGFilter = '';
+        let currentLFilter = '';
+        
+        // 加载概览数据
+        function loadOverviewData() {
+            const dataRef = ref(database, 'simu_review');
+            onValue(dataRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // 将数据转换为数组格式（仅支持新数据结构）
+                    overviewData = [];
+                    for (const stock in data) {
+                        for (const strategy in data[stock]) {
+                            // 处理数组中的每个元素
+                            if (Array.isArray(data[stock][strategy])) {
+                                data[stock][strategy].forEach((item, index) => {
+                                    overviewData.push({
+                                        stock: stock,
+                                        strategy: strategy,
+                                        index: index,
+                                        ...item
+                                    });
+                                });
+                            }
+                        }
+                    }
+                    // 初始过滤和显示
+                    filterAndDisplayOverviewData();
+                } else {
+                    document.getElementById('overview-table-body').innerHTML = '<tr><td colspan="16" style="text-align:center">暂无数据</td></tr>';
                 }
-
-                // 调用Firebase API发送重置邮件
-                await sendPasswordResetEmail(auth, email, {
-                    url: window.location.origin  // 重置成功后跳转回当前页面（可选）
-                });
-
-                // 提示成功
-                successElement.textContent = "重置邮件已发送！请查收邮箱（含垃圾邮件）";
-                // 3秒后自动关闭模态框
-                setTimeout(closeForgotPasswordModal, 3000);
-            } catch (error) {
-                // 处理不同错误类型
-                let errorMsg;
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMsg = "该邮箱未注册，请输入授权邮箱";
-                        break;
-                    case 'auth/invalid-email':
-                        errorMsg = "邮箱格式无效，请重新输入";
-                        break;
-                    default:
-                        errorMsg = `发送失败: ${error.message}`;
+            }, (error) => {
+                console.error("获取数据时出错:", error);
+                if (error.code === 'PERMISSION_DENIED') {
+                    document.getElementById('overview-table-body').innerHTML = '<tr><td colspan="16" style="text-align:center; color: #f87171;">权限错误：无法访问数据，请联系管理员</td></tr>';
+                } else {
+                    document.getElementById('overview-table-body').innerHTML = '<tr><td colspan="16" style="text-align:center; color: #f87171;">数据加载失败</td></tr>';
                 }
-                errorElement.textContent = errorMsg;
+            });
+        }
+        
+        // 过滤并显示概览数据
+        function filterAndDisplayOverviewData() {
+            // 应用搜索和筛选
+            filteredOverviewData = overviewData.filter(item => {
+                // 搜索过滤
+                const matchesSearch = !currentOverviewSearch || 
+                    item.stock.toLowerCase().includes(currentOverviewSearch.toLowerCase());
+                
+                // 策略过滤
+                const matchesFilter = !currentOverviewFilter || item.strategy === currentOverviewFilter;
+                
+                // G值过滤
+                let matchesGFilter = true;
+                if (currentGFilter) {
+                    const gValue = item.G || 0;
+                    const exactValue = parseInt(currentGFilter);
+                    matchesGFilter = gValue === exactValue;
+                }
+                
+                // L值过滤
+                let matchesLFilter = true;
+                if (currentLFilter) {
+                    const lValue = item.L || 0;
+                    const exactValue = parseInt(currentLFilter);
+                    matchesLFilter = lValue === exactValue;
+                }
+                
+                return matchesSearch && matchesFilter && matchesGFilter && matchesLFilter;
+            });
+            
+            // 显示当前页数据
+            displayOverviewPage(currentOverviewPage);
+        }
+        
+        // 显示概览数据的当前页
+        function displayOverviewPage(page) {
+            const totalPages = Math.ceil(filteredOverviewData.length / overviewPageSize);
+            if (page > totalPages && totalPages > 0) page = totalPages;
+            if (page < 1) page = 1;
+            currentOverviewPage = page;
+            
+            const startIndex = (page - 1) * overviewPageSize;
+            const endIndex = startIndex + overviewPageSize;
+            const pageData = filteredOverviewData.slice(startIndex, endIndex);
+            
+            const tableBody = document.getElementById('overview-table-body');
+            if (pageData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="16" style="text-align:center">暂无数据</td></tr>';
+            } else {
+                tableBody.innerHTML = pageData.map(item => `
+                    <tr>
+                        <td>${item.stock}</td>
+                        <td>${item.strategy}</td>
+                        <td>${item.G || '--'}</td>
+                        <td>${item.L || '--'}</td>
+                        <td>${item.Total || '--'}</td>
+                        <td>${typeof item.Avg === 'number' ? item.Avg.toFixed(2) : item.Avg || '--'}</td>
+                        <td>${typeof item.Keep === 'number' ? item.Keep.toFixed(2) : item.Keep || '--'}</td>
+                        <td>${item.Move || '--'}</td>
+                        <td>${typeof item.M_avg === 'number' ? item.M_avg.toFixed(2) : item.M_avg || '--'}</td>
+                        <td>${typeof item.M_keep === 'number' ? item.M_keep.toFixed(2) : item.M_keep || '--'}</td>
+                        <td>${item.Gain || '--'}</td>
+                        <td>${typeof item.G_avg === 'number' ? item.G_avg.toFixed(2) : item.G_avg || '--'}</td>
+                        <td>${typeof item.G_keep === 'number' ? item.G_keep.toFixed(2) : item.G_keep || '--'}</td>
+                        <td>${item.Loss || '--'}</td>
+                        <td>${typeof item.L_avg === 'number' ? item.L_avg.toFixed(2) : item.L_avg || '--'}</td>
+                        <td>${typeof item.L_keep === 'number' ? item.L_keep.toFixed(2) : item.L_keep || '--'}</td>
+                    </tr>
+                `).join('');
             }
-        };
-
-        // 点击模态框外部关闭
-        window.onclick = (event) => {
-            const modal = document.getElementById('forgot-password-modal');
-            if (event.target === modal) {
-                closeForgotPasswordModal();
+            
+            // 更新分页信息
+            updateOverviewPaginationInfo();
+        }
+        
+        // 更新概览分页信息
+        function updateOverviewPaginationInfo() {
+            const totalPages = Math.ceil(filteredOverviewData.length / overviewPageSize);
+            const totalItems = filteredOverviewData.length;
+            const startIndex = totalItems === 0 ? 0 : (currentOverviewPage - 1) * overviewPageSize + 1;
+            const endIndex = Math.min(currentOverviewPage * overviewPageSize, totalItems);
+            
+            document.getElementById('overview-page-info').textContent = 
+                `${startIndex}-${endIndex} of ${totalItems}`;
+            
+            // 更新按钮状态
+            document.getElementById('overview-first-page').disabled = currentOverviewPage === 1;
+            document.getElementById('overview-prev-page').disabled = currentOverviewPage === 1;
+            document.getElementById('overview-next-page').disabled = currentOverviewPage === totalPages || totalPages === 0;
+            document.getElementById('overview-last-page').disabled = currentOverviewPage === totalPages || totalPages === 0;
+        }
+        
+        // 绑定概览分页事件
+        document.getElementById('overview-first-page').addEventListener('click', () => {
+            if (currentOverviewPage > 1) {
+                displayOverviewPage(1);
             }
-        };
+        });
+        
+        document.getElementById('overview-prev-page').addEventListener('click', () => {
+            if (currentOverviewPage > 1) {
+                displayOverviewPage(currentOverviewPage - 1);
+            }
+        });
+        
+        document.getElementById('overview-next-page').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredOverviewData.length / overviewPageSize);
+            if (currentOverviewPage < totalPages) {
+                displayOverviewPage(currentOverviewPage + 1);
+            }
+        });
+        
+        document.getElementById('overview-last-page').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredOverviewData.length / overviewPageSize);
+            if (currentOverviewPage < totalPages) {
+                displayOverviewPage(totalPages);
+            }
+        });
+        
+        // 分页大小改变事件
+        document.getElementById('overview-page-size').addEventListener('change', (e) => {
+            overviewPageSize = parseInt(e.target.value);
+            currentOverviewPage = 1;
+            displayOverviewPage(currentOverviewPage);
+        });
+        
+        // 搜索事件
+        document.getElementById('overview-search').addEventListener('input', (e) => {
+            currentOverviewSearch = e.target.value;
+            currentOverviewPage = 1;
+            filterAndDisplayOverviewData();
+        });
+        
+        // 筛选事件
+        document.getElementById('overview-filter').addEventListener('change', (e) => {
+            currentOverviewFilter = e.target.value;
+            currentOverviewPage = 1;
+            filterAndDisplayOverviewData();
+        });
+        
+        // G值筛选事件
+        document.getElementById('g-filter').addEventListener('change', (e) => {
+            currentGFilter = e.target.value;
+            currentOverviewPage = 1;
+            filterAndDisplayOverviewData();
+        });
+        
+        // L值筛选事件
+        document.getElementById('l-filter').addEventListener('change', (e) => {
+            currentLFilter = e.target.value;
+            currentOverviewPage = 1;
+            filterAndDisplayOverviewData();
+        });
     </script>
 </body>
 </html>

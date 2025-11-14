@@ -170,122 +170,6 @@
             font-size: 0.9rem;
         }
         
-        /* 模态框样式 */
-        .modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background-color: rgba(0,0,0,0.5); 
-            z-index: 1000; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        .modal-content { 
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            border: 1px solid rgba(109, 213, 250, 0.3);
-            padding: 25px; 
-            border-radius: 8px; 
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-        .modal-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-            border-bottom: 1px solid rgba(109, 213, 250, 0.2); 
-            padding-bottom: 15px; 
-        }
-        .modal-title { 
-            margin: 0; 
-            font-size: 1.4em; 
-            color: #6dd5fa; 
-        }
-        .close-modal { 
-            background: none; 
-            border: none; 
-            font-size: 1.5em; 
-            cursor: pointer; 
-            color: #a8dadc;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .close-modal:hover { 
-            background: rgba(255, 255, 250, 0.1);
-            color: #6dd5fa;
-        }
-        .modal-footer { 
-            margin-top: 25px; 
-            text-align: right; 
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        .cancel-btn { 
-            background: rgba(255, 255, 255, 0.05);
-            color: #a8dadc;
-            border: 1px solid rgba(109, 213, 250, 0.3);
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .cancel-btn:hover { 
-            background: rgba(109, 213, 250, 0.1);
-            color: #6dd5fa;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #a8dadc;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            box-sizing: border-box;
-            border: 1px solid rgba(109, 213, 250, 0.3);
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.03);
-            color: #e2e8f0;
-            font-size: 1em;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #6dd5fa;
-        }
-        .error-message {
-            color: #ef4444;
-            margin: 10px 0;
-            text-align: center;
-        }
-        .success-message {
-            color: #34d399;
-            margin: 10px 0;
-            text-align: center;
-        }
-        .modal-footer button {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #3b82f6, #60a5fa);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background 0.3s ease;
-        }
-        .modal-footer button:hover {
-            background: linear-gradient(135deg, #2563eb, #4f97f7);
-        }
         /* Tab样式 */
         .tab-container {
             display: flex;
@@ -418,7 +302,7 @@
     <!-- 左侧导航栏 -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-logo">
-            <h2>Asterism</h2>
+            <h2>Asterism Capital</h2>
         </div>
         <ul class="sidebar-menu">
             <li class="nav-item" data-target="simulating">
@@ -1009,70 +893,6 @@
             });
         }
         
-        // 忘记密码相关函数
-        // 打开模态框
-        window.openForgotPasswordModal = () => {
-            document.getElementById('forgot-password-modal').style.display = 'flex';
-            // 清空之前的错误/成功提示
-            document.getElementById('reset-error').textContent = '';
-            document.getElementById('reset-success').textContent = '';
-            // 聚焦输入框
-            document.getElementById('reset-email').focus();
-        };
-
-        // 关闭模态框
-        window.closeForgotPasswordModal = () => {
-            document.getElementById('forgot-password-modal').style.display = 'none';
-        };
-
-        // 发送重置密码邮件
-        window.sendResetPasswordEmail = async () => {
-            const email = document.getElementById('reset-email').value.trim();
-            const errorElement = document.getElementById('reset-error');
-            const successElement = document.getElementById('reset-success');
-
-            try {
-                errorElement.textContent = '';
-                successElement.textContent = '';
-
-                // 验证邮箱格式
-                if (!email.includes('@')) {
-                    throw new Error("请输入有效的邮箱地址");
-                }
-
-                // 调用Firebase API发送重置邮件
-                await sendPasswordResetEmail(auth, email, {
-                    url: window.location.origin  // 重置成功后跳转回当前页面（可选）
-                });
-
-                // 提示成功
-                successElement.textContent = "重置邮件已发送！请查收邮箱（含垃圾邮件）";
-                // 3秒后自动关闭模态框
-                setTimeout(closeForgotPasswordModal, 3000);
-            } catch (error) {
-                // 处理不同错误类型
-                let errorMsg;
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        errorMsg = "该邮箱未注册，请输入授权邮箱";
-                        break;
-                    case 'auth/invalid-email':
-                        errorMsg = "邮箱格式无效，请重新输入";
-                        break;
-                    default:
-                        errorMsg = `发送失败: ${error.message}`;
-                }
-                errorElement.textContent = errorMsg;
-            }
-        };
-
-        // 点击模态框外部关闭
-        window.onclick = (event) => {
-            const modal = document.getElementById('forgot-password-modal');
-            if (event.target === modal) {
-                closeForgotPasswordModal();
-            }
-        };
     </script>
 </body>
 </html>
