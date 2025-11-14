@@ -396,7 +396,6 @@
             getAuth,
             signInWithEmailAndPassword,
             signOut,
-            onAuthStateChanged,
             sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
@@ -416,19 +415,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-
-        // 页面加载时检查是否已登录
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // 用户已登录，隐藏登录表单，显示首页
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('home-page').style.display = 'flex';
-            } else {
-                // 用户未登录，隐藏登录表单，只显示首页
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('home-page').style.display = 'flex';
-            }
-        });
 
         // 登录函数
         window.login = async () => {
