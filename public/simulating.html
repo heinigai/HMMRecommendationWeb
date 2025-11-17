@@ -447,158 +447,166 @@
         </ul>
     </div>
 
-    <!-- 主内容区域 -->
+    <!-- 主内容区域A -->
     <div class="main-content">
         <div class="content-container">
             <h1>模拟分析</h1>
-            
-            <!-- Tab切换 -->
-            <div class="tab-container">
-                <button class="tab-btn active" data-tab="overview">概览</button>
-                <button class="tab-btn" data-tab="detail">详情</button>
-            </div>
-            
-            <!-- 概览内容 -->
-            <div id="overview-tab">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                        <div>股票代码:</div>
-                        <input type="text" id="overview-search" placeholder="搜索股票代码..." />
-                        <div>策略:</div>
-                        <select id="overview-filter">
-                            <option value="">ALL</option>
-                            <option value="R1">R1</option>
-                            <option value="R2">R2</option>
-                            <option value="R3">R3</option>
-                            <option value="R4">R4</option>
-                            <option value="R5">R5</option>
-                            <option value="R6">R6</option>
-                            <option value="R7">R7</option>
-                            <option value="R8">R8</option>
-                        </select>
-                        <div>G值:</div>
-                        <select id="g-filter">
-                            <option value="">ALL</option>
-                            <option value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="6">6</option>
-                            <option value="8">8</option>
-                            <option value="10">10</option>
-                            <option value="12">12</option>
-                            <option value="14">14</option>
-                            <option value="16">16</option>
-                            <option value="18">18</option>
-                            <option value="20" selected>20</option>
-                            <option value="22">22</option>
-                            <option value="24">24</option>
-                            <option value="26">26</option>
-                            <option value="28">28</option>
-                            <option value="30">30</option>
-                            <option value="32">32</option>
-                            <option value="34">34</option>
-                            <option value="36">36</option>
-                            <option value="38">38</option>
-                            <option value="40">40</option>
-                        </select>
-                        <div>L值:</div>
-                        <select id="l-filter">
-                            <option value="">ALl</option>
-                            <option value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="6">6</option>
-                            <option value="8">8</option>
-                            <option value="10">10</option>
-                            <option value="12">12</option>
-                            <option value="14">14</option>
-                            <option value="16">16</option>
-                            <option value="18">18</option>
-                            <option value="20" selected>20</option>
-                            <option value="22">22</option>
-                            <option value="24">24</option>
-                            <option value="26">26</option>
-                            <option value="28">28</option>
-                            <option value="30">30</option>
-                            <option value="32">32</option>
-                            <option value="34">34</option>
-                            <option value="36">36</option>
-                            <option value="38">38</option>
-                            <option value="40">40</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <table class="stock-table">
-                    <thead>
-                        <tr>
-                            <th>股票代码</th>
-                            <th>策略</th>
-                            <th>G</th>
-                            <th>L</th>
-                            <th>Total</th>
-                            <th>Avg</th>
-                            <th>Keep</th>
-                            <th>Move</th>
-                            <th>M_avg</th>
-                            <th>M_keep</th>
-                            <th>Gain</th>
-                            <th>G_avg</th>
-                            <th>G_keep</th>
-                            <th>Loss</th>
-                            <th>L_avg</th>
-                            <th>L_keep</th>
-                        </tr>
-                    </thead>
-                    <tbody id="overview-table-body">
-                        <tr><td colspan="16" style="text-align:center" class="loading">加载中...</td></tr>
-                    </tbody>
-                </table>
-                
-                <div id="overview-pagination" style="position: relative; margin-top: 20px; min-height: 50px;">
-                    <div style="position: absolute; bottom: 0; right: 0; display: flex; align-items: center; gap: 10px; background: rgba(30, 41, 59, 0.75); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(109, 213, 250, 0.3); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">
-                        <span id="overview-page-info" style="font-size: 0.9em; color: #cbd5e1; min-width: 100px; text-align: center;"></span>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <button id="overview-first-page" class="pagination-btn pagination-btn-modern" title="首页">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="11 19 2 12 11 5 11 19"></polygon>
-                                    <polygon points="22 19 13 12 22 5 22 19"></polygon>
-                                </svg>
-                            </button>
-                            <button id="overview-prev-page" class="pagination-btn pagination-btn-modern" title="上一页">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="15 18 9 12 15 6 15 18"></polygon>
-                                </svg>
-                            </button>
-                            <select id="overview-page-size" style="margin: 0 5px;">
-                                <option value="10">10条/页</option>
-                                <option value="20" selected>20条/页</option>
-                                <option value="50">50条/页</option>
-                                <option value="100">100条/页</option>
-                            </select>
-                            <button id="overview-next-page" class="pagination-btn pagination-btn-modern" title="下一页">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="9 18 15 12 9 6 9 18"></polygon>
-                                </svg>
-                            </button>
-                            <button id="overview-last-page" class="pagination-btn pagination-btn-modern" title="末页">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="13 19 22 12 13 5 13 19"></polygon>
-                                    <polygon points="2 19 11 12 2 5 2 19"></polygon>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 详情内容 -->
-            <div id="detail-tab" style="display: none;">
-                <div class="no-data">
-                    <h3>暂无数据</h3>
-                    <p>详情数据正在开发中</p>
-                </div>
-            </div>
+            <p>功能开发中，即将上线</p>
         </div>
     </div>
+
+    <!-- 主内容区域 -->
+<!--    <div class="main-content">-->
+<!--        <div class="content-container">-->
+<!--            <h1>模拟分析</h1>-->
+<!--            -->
+<!--            &lt;!&ndash; Tab切换 &ndash;&gt;-->
+<!--            <div class="tab-container">-->
+<!--                <button class="tab-btn active" data-tab="overview">概览</button>-->
+<!--                <button class="tab-btn" data-tab="detail">详情</button>-->
+<!--            </div>-->
+<!--            -->
+<!--            &lt;!&ndash; 概览内容 &ndash;&gt;-->
+<!--            <div id="overview-tab">-->
+<!--                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">-->
+<!--                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">-->
+<!--                        <div>股票代码:</div>-->
+<!--                        <input type="text" id="overview-search" placeholder="搜索股票代码..." />-->
+<!--                        <div>策略:</div>-->
+<!--                        <select id="overview-filter">-->
+<!--                            <option value="">ALL</option>-->
+<!--                            <option value="R1">R1</option>-->
+<!--                            <option value="R2">R2</option>-->
+<!--                            <option value="R3">R3</option>-->
+<!--                            <option value="R4">R4</option>-->
+<!--                            <option value="R5">R5</option>-->
+<!--                            <option value="R6">R6</option>-->
+<!--                            <option value="R7">R7</option>-->
+<!--                            <option value="R8">R8</option>-->
+<!--                        </select>-->
+<!--                        <div>G值:</div>-->
+<!--                        <select id="g-filter">-->
+<!--                            <option value="">ALL</option>-->
+<!--                            <option value="2">2</option>-->
+<!--                            <option value="4">4</option>-->
+<!--                            <option value="6">6</option>-->
+<!--                            <option value="8">8</option>-->
+<!--                            <option value="10">10</option>-->
+<!--                            <option value="12">12</option>-->
+<!--                            <option value="14">14</option>-->
+<!--                            <option value="16">16</option>-->
+<!--                            <option value="18">18</option>-->
+<!--                            <option value="20" selected>20</option>-->
+<!--                            <option value="22">22</option>-->
+<!--                            <option value="24">24</option>-->
+<!--                            <option value="26">26</option>-->
+<!--                            <option value="28">28</option>-->
+<!--                            <option value="30">30</option>-->
+<!--                            <option value="32">32</option>-->
+<!--                            <option value="34">34</option>-->
+<!--                            <option value="36">36</option>-->
+<!--                            <option value="38">38</option>-->
+<!--                            <option value="40">40</option>-->
+<!--                        </select>-->
+<!--                        <div>L值:</div>-->
+<!--                        <select id="l-filter">-->
+<!--                            <option value="">ALl</option>-->
+<!--                            <option value="2">2</option>-->
+<!--                            <option value="4">4</option>-->
+<!--                            <option value="6">6</option>-->
+<!--                            <option value="8">8</option>-->
+<!--                            <option value="10">10</option>-->
+<!--                            <option value="12">12</option>-->
+<!--                            <option value="14">14</option>-->
+<!--                            <option value="16">16</option>-->
+<!--                            <option value="18">18</option>-->
+<!--                            <option value="20" selected>20</option>-->
+<!--                            <option value="22">22</option>-->
+<!--                            <option value="24">24</option>-->
+<!--                            <option value="26">26</option>-->
+<!--                            <option value="28">28</option>-->
+<!--                            <option value="30">30</option>-->
+<!--                            <option value="32">32</option>-->
+<!--                            <option value="34">34</option>-->
+<!--                            <option value="36">36</option>-->
+<!--                            <option value="38">38</option>-->
+<!--                            <option value="40">40</option>-->
+<!--                        </select>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                -->
+<!--                <table class="stock-table">-->
+<!--                    <thead>-->
+<!--                        <tr>-->
+<!--                            <th>股票代码</th>-->
+<!--                            <th>策略</th>-->
+<!--                            <th>G</th>-->
+<!--                            <th>L</th>-->
+<!--                            <th>Total</th>-->
+<!--                            <th>Avg</th>-->
+<!--                            <th>Keep</th>-->
+<!--                            <th>Move</th>-->
+<!--                            <th>M_avg</th>-->
+<!--                            <th>M_keep</th>-->
+<!--                            <th>Gain</th>-->
+<!--                            <th>G_avg</th>-->
+<!--                            <th>G_keep</th>-->
+<!--                            <th>Loss</th>-->
+<!--                            <th>L_avg</th>-->
+<!--                            <th>L_keep</th>-->
+<!--                        </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody id="overview-table-body">-->
+<!--                        <tr><td colspan="16" style="text-align:center" class="loading">加载中...</td></tr>-->
+<!--                    </tbody>-->
+<!--                </table>-->
+<!--                -->
+<!--                <div id="overview-pagination" style="position: relative; margin-top: 20px; min-height: 50px;">-->
+<!--                    <div style="position: absolute; bottom: 0; right: 0; display: flex; align-items: center; gap: 10px; background: rgba(30, 41, 59, 0.75); padding: 8px 15px; border-radius: 8px; border: 1px solid rgba(109, 213, 250, 0.3); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);">-->
+<!--                        <span id="overview-page-info" style="font-size: 0.9em; color: #cbd5e1; min-width: 100px; text-align: center;"></span>-->
+<!--                        <div style="display: flex; gap: 5px; align-items: center;">-->
+<!--                            <button id="overview-first-page" class="pagination-btn pagination-btn-modern" title="首页">-->
+<!--                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+<!--                                    <polygon points="11 19 2 12 11 5 11 19"></polygon>-->
+<!--                                    <polygon points="22 19 13 12 22 5 22 19"></polygon>-->
+<!--                                </svg>-->
+<!--                            </button>-->
+<!--                            <button id="overview-prev-page" class="pagination-btn pagination-btn-modern" title="上一页">-->
+<!--                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+<!--                                    <polygon points="15 18 9 12 15 6 15 18"></polygon>-->
+<!--                                </svg>-->
+<!--                            </button>-->
+<!--                            <select id="overview-page-size" style="margin: 0 5px;">-->
+<!--                                <option value="10">10条/页</option>-->
+<!--                                <option value="20" selected>20条/页</option>-->
+<!--                                <option value="50">50条/页</option>-->
+<!--                                <option value="100">100条/页</option>-->
+<!--                            </select>-->
+<!--                            <button id="overview-next-page" class="pagination-btn pagination-btn-modern" title="下一页">-->
+<!--                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+<!--                                    <polygon points="9 18 15 12 9 6 9 18"></polygon>-->
+<!--                                </svg>-->
+<!--                            </button>-->
+<!--                            <button id="overview-last-page" class="pagination-btn pagination-btn-modern" title="末页">-->
+<!--                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+<!--                                    <polygon points="13 19 22 12 13 5 13 19"></polygon>-->
+<!--                                    <polygon points="2 19 11 12 2 5 2 19"></polygon>-->
+<!--                                </svg>-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            -->
+<!--            &lt;!&ndash; 详情内容 &ndash;&gt;-->
+<!--            <div id="detail-tab" style="display: none;">-->
+<!--                <div class="no-data">-->
+<!--                    <h3>暂无数据</h3>-->
+<!--                    <p>详情数据正在开发中</p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 
     <script type="module">
         // 导入Firebase模块
