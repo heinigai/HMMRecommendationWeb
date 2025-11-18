@@ -376,7 +376,7 @@
                     throw new Error("请输入有效的邮箱地址");
                 }
 
-                // 调用Firebase API发送重置邮件
+                // 调用Firebase API发送重置邮件 出于安全考虑，API不能先验证邮箱是否已注册
                 await sendPasswordResetEmail(auth, email, {
                     url: window.location.origin + '/login.html'  // 重置成功后跳转回登录页面
                 });
