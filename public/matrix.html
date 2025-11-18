@@ -501,12 +501,13 @@
             const userEmail = document.getElementById('user-email');
             
             if (user) {
+                console.log(user, "user")
                 userEmail.textContent = user.email;
                 userInfo.classList.add('visible');
                 loadStockRecommendations();
             } else {
                 // 未登录重定向到登录页
-                window.location.href = 'index.html';
+                window.location.href = 'login.html?target=matrix';
             }
         });
 

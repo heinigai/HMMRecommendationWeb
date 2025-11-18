@@ -472,7 +472,7 @@
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
         // Firebase配置
-        const firebaseConfig = {
+        const firebaseConfigAsterism = {
           apiKey: "AIzaSyBE9Gw8VnTkF-7-SUxS7DqjFatnjuMN7-o",
           authDomain: "dmtool4-mplus.firebaseapp.com",
           databaseURL: "https://dmtool4-mplus-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -481,11 +481,22 @@
           messagingSenderId: "538349208541",
           appId: "1:538349208541:web:411703cb1e5d97caa3ec34"
         };
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHd6LoUOSlDm-Nj6c8NSXdtGw5HvPi3I4",
+            authDomain: "qtrader-3fd6b.firebaseapp.com",
+            databaseURL: "https://qtrader-3fd6b-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "qtrader-3fd6b",
+            storageBucket: "qtrader-3fd6b.firebasestorage.app",
+            messagingSenderId: "746210099239",
+            appId: "1:746210099239:web:6b72d2ef5e044b09a04e02",
+            measurementId: "G-HECR0FG996"
+        };
 
         // 初始化Firebase
         const app = initializeApp(firebaseConfig);
+        const appAsterism = initializeApp(firebaseConfigAsterism, "appAsterism");
         const auth = getAuth(app);
-        const database = getDatabase(app);
+        const database = getDatabase(appAsterism);
 
         // 退出登录
         window.logout = async () => {
