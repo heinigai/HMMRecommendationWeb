@@ -497,8 +497,12 @@
             }
         };
 
+        // 添加一个标志位跟踪认证状态是否已经初始化
+        let authStateInitialized = false;
+
         // 监听认证状态变化
         onAuthStateChanged(auth, (user) => {
+            authStateInitialized = true;
             const userInfo = document.getElementById('user-info');
             const userEmail = document.getElementById('user-email');
             
@@ -512,6 +516,14 @@
                 window.location.href = 'login.html?target=asterism';
             }
         });
+
+        // 添加超时机制，防止在Firebase认证初始化失败时页面一直空白
+        setTimeout(() => {
+            if (!authStateInitialized) {
+                console.warn("Auth state not initialized within timeout, redirecting to login");
+                window.location.href = 'login.html?target=asterism';
+            }
+        }, 5000); // 5秒超时
 
         // 导航栏项目点击事件
         document.querySelectorAll('.nav-item[data-target]').forEach(item => {
