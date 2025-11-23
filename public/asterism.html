@@ -512,12 +512,6 @@
                         </div>
                     </div>
 
-                    <!-- 运算结果区域（只显示名称和结果） -->
-                    <div class="group-box p-4 hidden" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: none;">
-                        <h2 class="text-lg font-semibold mb-3" style="color: #6dd5fa;">運算結果</h2>
-                        <div id="function-area" class="space-y-2"></div>
-                    </div>
-
                     <!-- 运算公式区域 -->
                     <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                         <div class="flex items-center mb-3">
@@ -542,43 +536,15 @@
     <script type="module">
         // 导入Firebase模块
         import {
-            getDatabase,
             ref,
             onValue
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
         // 导入用于认证的Firebase实例
-        import { app as authApp } from "./js/firebase-init.js";
-        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { app, auth, database } from "./js/firebase-init.js";
+        import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
         
-        // Firebase配置 - 用于数据访问的特定项目
-        const firebaseConfigAsterism = {
-          apiKey: "AIzaSyBE9Gw8VnTkF-7-SUxS7DqjFatnjuMN7-o",
-          authDomain: "dmtool4-mplus.firebaseapp.com",
-          databaseURL: "https://dmtool4-mplus-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "dmtool4-mplus",
-          storageBucket: "dmtool4-mplus.firebasestorage.app",
-          messagingSenderId: "538349208541",
-          appId: "1:538349208541:web:411703cb1e5d97caa3ec34"
-        };
-
-        // 初始化Firebase应用实例
-        // 用于认证的实例从firebase-init.js导入
-        const auth = getAuth(authApp);
-        
-        // 用于数据访问的实例单独初始化
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getApps, getApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        
-        let appAsterism;
-        const appName = "appAsterism";
-        if (!getApps().find(app => app.name === appName)) {
-            appAsterism = initializeApp(firebaseConfigAsterism, appName);
-        } else {
-            appAsterism = getApp(appName);
-        }
-        
-        const database = getDatabase(appAsterism);
+        const db = database;
 
         // 退出登录
         window.logout = async () => {
@@ -700,7 +666,7 @@
 
         // 加载数据
         function loadData() {
-            const dataRef = ref(database, 'data/latest');
+            const dataRef = ref(db, 'data/latest');
             onValue(dataRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -722,7 +688,10 @@
                         : '--';
 
                     // 更新运算结果
-                    updateFunctionResults(data.func_res_data || {});
+                    // updateFunctionResults(data.func_res_data || {});
+                    
+                    // 当数据更新时，重新计算所有公式
+                    recalculateAllFormulas(data);
                 }
             }, (error) => {
                 console.error("获取数据时出错:", error);
@@ -840,7 +809,7 @@
         }
 
         // 计算公式结果
-        function calculateFormula(inputElement) {
+        function calculateFormula(inputElement, data = null) {
             const formula = inputElement.value.trim();
             const row = inputElement.closest('.formula-row');
             const resultElement = row.querySelector('.formula-result');
@@ -851,73 +820,97 @@
             }
 
             try {
-                // 获取当前数据用于计算
-                // 注意：实际使用中需要从Firebase获取最新数据
-                const dataRef = ref(database, 'data/latest');
-                onValue(dataRef, (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        // 将变量映射到实际数据
-                        const variables = {
-                            'DSO': data.daily_spx?.open || 0,
-                            'DSH': data.daily_spx?.high || 0,
-                            'DSL': data.daily_spx?.low || 0,
-                            'DSC': data.daily_spx?.close || 0,
-                            'DDO': data.daily_dji?.open || 0,
-                            'DDH': data.daily_dji?.high || 0,
-                            'DDL': data.daily_dji?.low || 0,
-                            'DDC': data.daily_dji?.close || 0,
-                            'WSO': data.weekly_spx?.open || 0,
-                            'WSH': data.weekly_spx?.high || 0,
-                            'WSL': data.weekly_spx?.low || 0,
-                            'WSC': data.weekly_spx?.close || 0,
-                            'WDO': data.weekly_dji?.open || 0,
-                            'WDH': data.weekly_dji?.high || 0,
-                            'WDL': data.weekly_dji?.low || 0,
-                            'WDC': data.weekly_dji?.close || 0,
-                            'MSO': data.monthly_spx?.open || 0,
-                            'MSH': data.monthly_spx?.high || 0,
-                            'MSL': data.monthly_spx?.low || 0,
-                            'MSC': data.monthly_spx?.close || 0,
-                            'MDO': data.monthly_dji?.open || 0,
-                            'MDH': data.monthly_dji?.high || 0,
-                            'MDL': data.monthly_dji?.low || 0,
-                            'MDC': data.monthly_dji?.close || 0
-                        };
-
-                        // 先检查公式中是否包含非法字符（除了允许的变量和运算符）
-                        const allowedPattern = /^[A-Z0-9+\-*/().\s^]+$/;
-                        if (!allowedPattern.test(formula)) {
-                            throw new Error('公式包含非法字符');
+                // 如果没有提供数据，则从Firebase获取当前数据
+                if (!data) {
+                    const dataRef = ref(db, 'data/latest');
+                    onValue(dataRef, (snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            performCalculation(formula, data, resultElement);
                         }
-
-                        // 检查公式中使用的变量是否都是有效的
-                        const variablePattern = /[A-Z][A-Z0-9]*/g;
-                        const usedVariables = formula.match(variablePattern) || [];
-                        for (const variable of usedVariables) {
-                            if (!(variable in variables)) {
-                                throw new Error(`未知变量: ${variable}`);
-                            }
-                        }
-
-                        // 替换公式中的变量
-                        let expression = formula;
-                        for (const [variable, value] of Object.entries(variables)) {
-                            expression = expression.replace(new RegExp(`\\b${variable}\\b`, 'g'), value);
-                        }
-
-                        // 替换 ^ 为 ** 以支持幂运算
-                        expression = expression.replace(/\^/g, '**');
-
-                        // 计算结果
-                        const result = Function('"use strict"; return (' + expression + ')')();
-                        resultElement.textContent = isNaN(result) ? '无效结果' : result.toFixed(2);
-                    }
-                }, { onlyOnce: true });
+                    }, { onlyOnce: true });
+                } else {
+                    // 使用提供的数据进行计算
+                    performCalculation(formula, data, resultElement);
+                }
             } catch (error) {
                 resultElement.textContent = '公式错误';
                 console.error('公式计算错误:', error);
             }
+        }
+
+        // 执行实际的计算逻辑
+        function performCalculation(formula, data, resultElement) {
+            try {
+                // 将变量映射到实际数据
+                const variables = {
+                    'DSO': data.daily_spx?.open || 0,
+                    'DSH': data.daily_spx?.high || 0,
+                    'DSL': data.daily_spx?.low || 0,
+                    'DSC': data.daily_spx?.close || 0,
+                    'DDO': data.daily_dji?.open || 0,
+                    'DDH': data.daily_dji?.high || 0,
+                    'DDL': data.daily_dji?.low || 0,
+                    'DDC': data.daily_dji?.close || 0,
+                    'WSO': data.weekly_spx?.open || 0,
+                    'WSH': data.weekly_spx?.high || 0,
+                    'WSL': data.weekly_spx?.low || 0,
+                    'WSC': data.weekly_spx?.close || 0,
+                    'WDO': data.weekly_dji?.open || 0,
+                    'WDH': data.weekly_dji?.high || 0,
+                    'WDL': data.weekly_dji?.low || 0,
+                    'WDC': data.weekly_dji?.close || 0,
+                    'MSO': data.monthly_spx?.open || 0,
+                    'MSH': data.monthly_spx?.high || 0,
+                    'MSL': data.monthly_spx?.low || 0,
+                    'MSC': data.monthly_spx?.close || 0,
+                    'MDO': data.monthly_dji?.open || 0,
+                    'MDH': data.monthly_dji?.high || 0,
+                    'MDL': data.monthly_dji?.low || 0,
+                    'MDC': data.monthly_dji?.close || 0
+                };
+
+                // 先检查公式中是否包含非法字符（除了允许的变量和运算符）
+                const allowedPattern = /^[A-Z0-9+\-*/().\s^]+$/;
+                if (!allowedPattern.test(formula)) {
+                    throw new Error('公式包含非法字符');
+                }
+
+                // 检查公式中使用的变量是否都是有效的
+                const variablePattern = /[A-Z][A-Z0-9]*/g;
+                const usedVariables = formula.match(variablePattern) || [];
+                for (const variable of usedVariables) {
+                    if (!(variable in variables)) {
+                        throw new Error(`未知变量: ${variable}`);
+                    }
+                }
+
+                // 替换公式中的变量
+                let expression = formula;
+                for (const [variable, value] of Object.entries(variables)) {
+                    expression = expression.replace(new RegExp(`\\b${variable}\\b`, 'g'), value);
+                }
+
+                // 替换 ^ 为 ** 以支持幂运算
+                expression = expression.replace(/\^/g, '**');
+
+                // 计算结果
+                const result = Function('"use strict"; return (' + expression + ')')();
+                resultElement.textContent = isNaN(result) ? '无效结果' : result.toFixed(2);
+            } catch (error) {
+                resultElement.textContent = '公式错误';
+                console.error('公式计算错误:', error);
+            }
+        }
+
+        // 当数据更新时重新计算所有公式
+        function recalculateAllFormulas(data) {
+            document.querySelectorAll('.formula-input').forEach(input => {
+                // 只有当输入框中有公式时才重新计算
+                if (input.value.trim()) {
+                    calculateFormula(input, data);
+                }
+            });
         }
     </script>
 </body>
