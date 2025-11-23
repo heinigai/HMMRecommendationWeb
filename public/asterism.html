@@ -226,6 +226,28 @@
             padding: 0.5rem;
         }
         
+        .px-2 {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+        
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+        
+        .rounded {
+            border-radius: 0.25rem;
+        }
+        
+        .bg-gray-800 {
+            background-color: #1f2937;
+        }
+        
+        .border-gray-600 {
+            border-color: #4b5563;
+        }
+        
         .space-y-2 > :not([hidden]) ~ :not([hidden]) {
             --tw-space-y-reverse: 0;
             margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
@@ -272,8 +294,48 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
         
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        
+        .grid-cols-6 {
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+        }
+        
+        .col-span-1 {
+            grid-column: span 1 / span 1;
+        }
+        
+        .col-span-4 {
+            grid-column: span 4 / span 4;
+        }
+        
         .col-span-5 {
             grid-column: span 5 / span 5;
+        }
+        
+        .ml-2 {
+            margin-left: 0.5rem;
+        }
+        
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        .leading-tight {
+            line-height: 1.25;
+        }
+        
+        .mt-0 {
+            margin-top: 0;
+        }
+        
+        .formula-tooltip {
+            display: none;
+        }
+        
+        .formula-info:hover .formula-tooltip {
+            display: block;
         }
         
         .table-border {
@@ -296,6 +358,18 @@
         
         .text-red_down {
             color: #c80000;
+        }
+        
+        .max-w-xs {
+            max-width: 20rem;
+        }
+        
+        .border {
+            border-width: 1px;
+        }
+        
+        .formula-input:focus {
+            border-color: #60a5fa;
         }
     </style>
     <!-- 引入 Font Awesome 图标 -->
@@ -439,9 +513,26 @@
                     </div>
 
                     <!-- 运算结果区域（只显示名称和结果） -->
-                    <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div class="group-box p-4 hidden" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: none;">
                         <h2 class="text-lg font-semibold mb-3" style="color: #6dd5fa;">運算結果</h2>
                         <div id="function-area" class="space-y-2"></div>
+                    </div>
+
+                    <!-- 运算公式区域 -->
+                    <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div class="flex items-center mb-3">
+                            <h2 class="text-lg font-semibold" style="color: #6dd5fa;">運算公式</h2>
+                        </div>
+                        <div id="formula-area">
+                            <div class="grid grid-cols-6 gap-2 text-sm mb-2 font-medium">
+                                <div class="col-span-1" style="color: #a8dadc;">名稱</div>
+                                <div class="col-span-4" style="color: #a8dadc;">算式</div>
+                                <div class="col-span-1" style="color: #a8dadc;">結果</div>
+                            </div>
+                            <div id="formula-inputs">
+                                <!-- 动态生成公式输入框 -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -514,6 +605,8 @@
                 userInfo.classList.add('visible');
                 // 加载数据
                 loadData();
+                // 初始化公式输入框
+                initializeFormulaInputs();
             } else {
                 // 未登录重定向到登录页
                 window.location.href = 'login.html?target=asterism';
@@ -558,6 +651,30 @@
                 // 跳转到对应页面
                 window.location.href = url;
             });
+        });
+        
+        // 为公式说明图标添加点击事件（在触摸设备上使用）
+        document.addEventListener('DOMContentLoaded', function() {
+            const infoIcon = document.querySelector('.formula-info');
+            if (infoIcon) {
+                let isTooltipVisible = false;
+                
+                infoIcon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const tooltip = this.querySelector('.formula-tooltip');
+                    isTooltipVisible = !isTooltipVisible;
+                    tooltip.style.display = isTooltipVisible ? 'block' : 'none';
+                });
+                
+                // 点击页面其他地方隐藏提示
+                document.addEventListener('click', function() {
+                    if (isTooltipVisible) {
+                        const tooltip = infoIcon.querySelector('.formula-tooltip');
+                        tooltip.style.display = 'none';
+                        isTooltipVisible = false;
+                    }
+                });
+            }
         });
         
         // 格式化日期时间的函数
@@ -698,6 +815,110 @@
                     </div>
                 `).join('')}
             `;
+        }
+
+        // 初始化公式输入框
+        function initializeFormulaInputs() {
+            const formulaInputs = document.getElementById('formula-inputs');
+            const formulas = ['FO', 'FH', 'FL', 'FC'];
+            
+            formulaInputs.innerHTML = formulas.map(name => `
+                <div class="formula-row grid grid-cols-6 gap-2 items-center mb-2" data-name="${name}">
+                    <div class="col-span-1" style="color: #a8dadc;">${name}</div>
+                    <input type="text" class="formula-input bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm col-span-4" 
+                           placeholder="请输入公式" 
+                           style="color: #e2e8f0; border: 1px solid rgba(109, 213, 250, 0.3); outline: none;">
+                    <div class="formula-result font-medium col-span-1" style="color: #6dd5fa;">--</div>
+                </div>
+            `).join('');
+
+            // 为每个输入框添加事件监听器
+            document.querySelectorAll('.formula-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    calculateFormula(this);
+                });
+            });
+        }
+
+        // 计算公式结果
+        function calculateFormula(inputElement) {
+            const formula = inputElement.value.trim();
+            const row = inputElement.closest('.formula-row');
+            const resultElement = row.querySelector('.formula-result');
+            
+            if (!formula) {
+                resultElement.textContent = '--';
+                return;
+            }
+
+            try {
+                // 获取当前数据用于计算
+                // 注意：实际使用中需要从Firebase获取最新数据
+                const dataRef = ref(database, 'data/latest');
+                onValue(dataRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        // 将变量映射到实际数据
+                        const variables = {
+                            'DSO': data.daily_spx?.open || 0,
+                            'DSH': data.daily_spx?.high || 0,
+                            'DSL': data.daily_spx?.low || 0,
+                            'DSC': data.daily_spx?.close || 0,
+                            'DDO': data.daily_dji?.open || 0,
+                            'DDH': data.daily_dji?.high || 0,
+                            'DDL': data.daily_dji?.low || 0,
+                            'DDC': data.daily_dji?.close || 0,
+                            'WSO': data.weekly_spx?.open || 0,
+                            'WSH': data.weekly_spx?.high || 0,
+                            'WSL': data.weekly_spx?.low || 0,
+                            'WSC': data.weekly_spx?.close || 0,
+                            'WDO': data.weekly_dji?.open || 0,
+                            'WDH': data.weekly_dji?.high || 0,
+                            'WDL': data.weekly_dji?.low || 0,
+                            'WDC': data.weekly_dji?.close || 0,
+                            'MSO': data.monthly_spx?.open || 0,
+                            'MSH': data.monthly_spx?.high || 0,
+                            'MSL': data.monthly_spx?.low || 0,
+                            'MSC': data.monthly_spx?.close || 0,
+                            'MDO': data.monthly_dji?.open || 0,
+                            'MDH': data.monthly_dji?.high || 0,
+                            'MDL': data.monthly_dji?.low || 0,
+                            'MDC': data.monthly_dji?.close || 0
+                        };
+
+                        // 先检查公式中是否包含非法字符（除了允许的变量和运算符）
+                        const allowedPattern = /^[A-Z0-9+\-*/().\s^]+$/;
+                        if (!allowedPattern.test(formula)) {
+                            throw new Error('公式包含非法字符');
+                        }
+
+                        // 检查公式中使用的变量是否都是有效的
+                        const variablePattern = /[A-Z][A-Z0-9]*/g;
+                        const usedVariables = formula.match(variablePattern) || [];
+                        for (const variable of usedVariables) {
+                            if (!(variable in variables)) {
+                                throw new Error(`未知变量: ${variable}`);
+                            }
+                        }
+
+                        // 替换公式中的变量
+                        let expression = formula;
+                        for (const [variable, value] of Object.entries(variables)) {
+                            expression = expression.replace(new RegExp(`\\b${variable}\\b`, 'g'), value);
+                        }
+
+                        // 替换 ^ 为 ** 以支持幂运算
+                        expression = expression.replace(/\^/g, '**');
+
+                        // 计算结果
+                        const result = Function('"use strict"; return (' + expression + ')')();
+                        resultElement.textContent = isNaN(result) ? '无效结果' : result.toFixed(2);
+                    }
+                }, { onlyOnce: true });
+            } catch (error) {
+                resultElement.textContent = '公式错误';
+                console.error('公式计算错误:', error);
+            }
         }
     </script>
 </body>
