@@ -541,20 +541,17 @@
 
     <script type="module">
         // 导入Firebase模块
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import {
-            getAuth,
-            signOut,
-            onAuthStateChanged,
-            sendPasswordResetEmail
-        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
         import {
             getDatabase,
             ref,
             onValue
         } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-        // Firebase配置
+        // 导入用于认证的Firebase实例
+        import { app as authApp } from "./js/firebase-init.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        
+        // Firebase配置 - 用于数据访问的特定项目
         const firebaseConfigAsterism = {
           apiKey: "AIzaSyBE9Gw8VnTkF-7-SUxS7DqjFatnjuMN7-o",
           authDomain: "dmtool4-mplus.firebaseapp.com",
@@ -564,21 +561,23 @@
           messagingSenderId: "538349208541",
           appId: "1:538349208541:web:411703cb1e5d97caa3ec34"
         };
-        const firebaseConfig = {
-            apiKey: "AIzaSyDHd6LoUOSlDm-Nj6c8NSXdtGw5HvPi3I4",
-            authDomain: "qtrader-3fd6b.firebaseapp.com",
-            databaseURL: "https://qtrader-3fd6b-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "qtrader-3fd6b",
-            storageBucket: "qtrader-3fd6b.firebasestorage.app",
-            messagingSenderId: "746210099239",
-            appId: "1:746210099239:web:6b72d2ef5e044b09a04e02",
-            measurementId: "G-HECR0FG996"
-        };
 
-        // 初始化Firebase
-        const app = initializeApp(firebaseConfig);
-        const appAsterism = initializeApp(firebaseConfigAsterism, "appAsterism");
-        const auth = getAuth(app);
+        // 初始化Firebase应用实例
+        // 用于认证的实例从firebase-init.js导入
+        const auth = getAuth(authApp);
+        
+        // 用于数据访问的实例单独初始化
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import { getApps, getApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        
+        let appAsterism;
+        const appName = "appAsterism";
+        if (!getApps().find(app => app.name === appName)) {
+            appAsterism = initializeApp(firebaseConfigAsterism, appName);
+        } else {
+            appAsterism = getApp(appName);
+        }
+        
         const database = getDatabase(appAsterism);
 
         // 退出登录
