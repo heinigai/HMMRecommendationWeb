@@ -54,6 +54,20 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
+        
+        .nav-item.has-submenu {
+            position: relative;
+        }
+        
+        .submenu-toggle {
+            position: absolute;
+            right: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .submenu-toggle.expanded {
+            transform: rotate(180deg);
+        }
 
         .nav-item:hover, .nav-item.active {
             background: rgba(109, 213, 250, 0.1);
@@ -65,6 +79,41 @@
         }
 
         .nav-item span {
+            font-size: 0.9em;
+        }
+        
+        /* 子菜单样式 */
+        .sub-menu {
+            display: none;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 10px 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .sub-menu.visible {
+            display: block;
+        }
+
+        .sub-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px 12px 40px; /* 增加左边距以形成缩进 */
+            color: #a8dadc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sub-menu-item:hover, .sub-menu-item.active {
+            background: rgba(109, 213, 250, 0.1);
+            color: #6dd5fa;
+        }
+
+        .sub-menu-item svg {
+            margin-right: 10px;
+        }
+
+        .sub-menu-item span {
             font-size: 0.9em;
         }
 
@@ -404,10 +453,24 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
                 <span>MatrixR 策略</span>
             </li>
-            <li class="nav-item active" data-target="asterism">
+            <li class="nav-item active has-submenu" data-target="asterism-container">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                 <span>Asterism 策略</span>
+                <svg class="submenu-toggle" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
             </li>
+            <!-- US/HK 子菜单 -->
+            <ul class="sub-menu" id="asterism-submenu">
+                <li class="sub-menu-item active" data-market="us">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+                    <span>US</span>
+                </li>
+                <li class="sub-menu-item" data-market="hk">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>
+                    <span>HK</span>
+                </li>
+            </ul>
             <li class="nav-item" data-target="user">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 <span>用户管理</span>
@@ -546,6 +609,9 @@
         
         const db = database;
 
+        // 默认市场
+        window.currentMarket = 'us';
+        
         // 退出登录
         window.logout = async () => {
             try {
@@ -589,6 +655,12 @@
         // 导航栏项目点击事件
         document.querySelectorAll('.nav-item[data-target]').forEach(item => {
             item.addEventListener('click', () => {
+                // 检查是否是Asterism策略项（有子菜单的）
+                if (item.classList.contains('has-submenu')) {
+                    // 只处理子菜单项的点击，不处理父菜单跳转
+                    return;
+                }
+                
                 const target = item.getAttribute('data-target');
                 let url;
                 
@@ -616,6 +688,51 @@
                 // 跳转到对应页面
                 window.location.href = url;
             });
+        });
+
+        // US/HK 子菜单切换功能
+        document.querySelectorAll('.sub-menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 更新子菜单项状态
+                document.querySelectorAll('.sub-menu-item').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // 更新市场选择
+                const market = this.getAttribute('data-market');
+                window.currentMarket = market;
+
+                // 重新加载数据
+                loadData();
+            });
+        });
+
+        // 点击Asterism策略菜单展开/收拢子菜单
+        document.querySelector('.nav-item[data-target="asterism-container"]').addEventListener('click', function(event) {
+            // 检查是否点击的是展开/收起图标
+            const isToggleIcon = event.target.classList.contains('submenu-toggle') || 
+                               event.target.parentElement.classList.contains('submenu-toggle');
+            
+            const submenu = document.getElementById('asterism-submenu');
+            const isCurrentlyVisible = submenu.classList.contains('visible');
+            
+            // 清除其他导航项的激活状态，保持当前项激活
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            
+            // 切换子菜单显示状态
+            if (isCurrentlyVisible) {
+                submenu.classList.remove('visible');
+            } else {
+                submenu.classList.add('visible');
+            }
+            
+            // 切换图标旋转状态
+            const toggleIcon = this.querySelector('.submenu-toggle');
+            if (isCurrentlyVisible) {
+                toggleIcon.classList.remove('expanded');
+            } else {
+                toggleIcon.classList.add('expanded');
+            }
         });
         
         // 为公式说明图标添加点击事件（在触摸设备上使用）
@@ -664,9 +781,16 @@
             return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         }
 
+        // 获取当前市场的数据库引用
+        function getCurrentMarketDataRef() {
+            const market = window.currentMarket || 'us';
+            const marketPath = market === 'hk' ? 'data_hk/latest' : 'data/latest';
+            return ref(db, marketPath);
+        }
+        
         // 加载数据
         function loadData() {
-            const dataRef = ref(db, 'data/latest');
+            const dataRef = getCurrentMarketDataRef();
             onValue(dataRef, (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -714,7 +838,7 @@
             // 构建SPX行
             const row0 = document.createElement('tr');
             row0.innerHTML = `
-                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">SPX</td>
+                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${spx.symbol}</td>
                 <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(spx.open)}</td>
                 <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(spx.high)}</td>
                 <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(spx.low)}</td>
@@ -733,7 +857,7 @@
             // 构建Dow Jones行
             const row2 = document.createElement('tr');
             row2.innerHTML = `
-                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">Dow Jones</td>
+                <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${dji.symbol}</td>
                 <td class="cell-border p-2 text-center" rowspan="2" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(dji.open)}</td>
                 <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(dji.high)}</td>
                 <td class="cell-border p-2 text-center" style="border: 1px solid rgba(109, 213, 250, 0.3); color: #a8dadc;">${formatNumber(dji.low)}</td>
@@ -822,7 +946,7 @@
             try {
                 // 如果没有提供数据，则从Firebase获取当前数据
                 if (!data) {
-                    const dataRef = ref(db, 'data/latest');
+                    const dataRef = getCurrentMarketDataRef();
                     onValue(dataRef, (snapshot) => {
                         const data = snapshot.val();
                         if (data) {
@@ -844,30 +968,30 @@
             try {
                 // 将变量映射到实际数据
                 const variables = {
-                    'DSO': data.daily_spx?.open || 0,
-                    'DSH': data.daily_spx?.high || 0,
-                    'DSL': data.daily_spx?.low || 0,
-                    'DSC': data.daily_spx?.close || 0,
-                    'DDO': data.daily_dji?.open || 0,
-                    'DDH': data.daily_dji?.high || 0,
-                    'DDL': data.daily_dji?.low || 0,
-                    'DDC': data.daily_dji?.close || 0,
-                    'WSO': data.weekly_spx?.open || 0,
-                    'WSH': data.weekly_spx?.high || 0,
-                    'WSL': data.weekly_spx?.low || 0,
-                    'WSC': data.weekly_spx?.close || 0,
-                    'WDO': data.weekly_dji?.open || 0,
-                    'WDH': data.weekly_dji?.high || 0,
-                    'WDL': data.weekly_dji?.low || 0,
-                    'WDC': data.weekly_dji?.close || 0,
-                    'MSO': data.monthly_spx?.open || 0,
-                    'MSH': data.monthly_spx?.high || 0,
-                    'MSL': data.monthly_spx?.low || 0,
-                    'MSC': data.monthly_spx?.close || 0,
-                    'MDO': data.monthly_dji?.open || 0,
-                    'MDH': data.monthly_dji?.high || 0,
-                    'MDL': data.monthly_dji?.low || 0,
-                    'MDC': data.monthly_dji?.close || 0
+                    'DO1': data.daily_spx?.open || 0,
+                    'DH1': data.daily_spx?.high || 0,
+                    'DL1': data.daily_spx?.low || 0,
+                    'DC1': data.daily_spx?.close || 0,
+                    'DO2': data.daily_dji?.open || 0,
+                    'DH2': data.daily_dji?.high || 0,
+                    'DL2': data.daily_dji?.low || 0,
+                    'DC2': data.daily_dji?.close || 0,
+                    'WO1': data.weekly_spx?.open || 0,
+                    'WH1': data.weekly_spx?.high || 0,
+                    'WL1': data.weekly_spx?.low || 0,
+                    'WC1': data.weekly_spx?.close || 0,
+                    'WO2': data.weekly_dji?.open || 0,
+                    'WH2': data.weekly_dji?.high || 0,
+                    'WL2': data.weekly_dji?.low || 0,
+                    'WC2': data.weekly_dji?.close || 0,
+                    'MO1': data.monthly_spx?.open || 0,
+                    'MH1': data.monthly_spx?.high || 0,
+                    'ML1': data.monthly_spx?.low || 0,
+                    'MC1': data.monthly_spx?.close || 0,
+                    'MO2': data.monthly_dji?.open || 0,
+                    'MH2': data.monthly_dji?.high || 0,
+                    'ML2': data.monthly_dji?.low || 0,
+                    'MC2': data.monthly_dji?.close || 0
                 };
 
                 // 先检查公式中是否包含非法字符（除了允许的变量和运算符）
