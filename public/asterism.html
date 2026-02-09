@@ -569,11 +569,28 @@
                                 <span id="corr-value" class="font-semibold" style="color: #6dd5fa;">--</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="font-medium" style="color: #a8dadc;">VIX：</span>
+                                <span id="vix-label" class="font-medium" style="color: #a8dadc;">VIX：</span>
                                 <span id="vix-value" class="font-semibold" style="color: #6dd5fa;">--</span>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 运算式结果区域 -->
+                    <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div class="flex items-center mb-3">
+                            <h2 class="text-lg font-semibold" style="color: #6dd5fa;">運算式結果</h2>
+                        </div>
+                        <div id="function-results-area">
+                            <div class="grid grid-cols-2 gap-2 text-sm mb-2 font-medium">
+                                <div style="color: #a8dadc;">名稱</div>
+                                <div style="color: #a8dadc;">結果</div>
+                            </div>
+                            <div id="function-results-content">
+                                <!-- 动态生成结果内容 -->
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- 运算公式区域 -->
                     <div class="group-box p-4" style="border: 1px solid rgba(109, 213, 250, 0.3); border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
@@ -790,6 +807,7 @@
         
         // 加载数据
         function loadData() {
+            document.getElementById('vix-label').textContent = window.currentMarket === 'hk' ? 'VHSI：' : 'VIX：';
             const dataRef = getCurrentMarketDataRef();
             onValue(dataRef, (snapshot) => {
                 const data = snapshot.val();
@@ -812,7 +830,7 @@
                         : '--';
 
                     // 更新运算结果
-                    // updateFunctionResults(data.func_res_data || {});
+                    updateFunctionResults(data.func_res_data || {});
                     
                     // 当数据更新时，重新计算所有公式
                     recalculateAllFormulas(data);
@@ -894,20 +912,27 @@
 
         // 更新运算结果
         function updateFunctionResults(funcRes) {
-            const funcArea = document.getElementById('function-area');
-            funcArea.innerHTML = `
-                <div class="grid grid-cols-2 gap-2 text-sm mb-2 font-medium">
-                    <div style="color: #a8dadc;">名稱</div>
-                    <div style="color: #a8dadc;">結果</div>
-                </div>
-                ${['FO', 'FH', 'FL', 'FC'].map(key => `
+            const resultsContent = document.getElementById('function-results-content');
+
+            if (!funcRes) {
+                resultsContent.innerHTML = `
                     <div class="grid grid-cols-2 gap-2 items-center">
-                        <div style="color: #a8dadc;">${key}</div>
-                        <div class="font-medium" style="color: #6dd5fa;">${funcRes[key] !== undefined ? funcRes[key] : '--'}</div>
+                        <div style="color: #a8dadc;">无数据</div>
+                        <div class="font-medium" style="color: #6dd5fa;">--</div>
                     </div>
-                `).join('')}
-            `;
+                `;
+                return;
+            }
+
+            const formulas = ['FO', 'FH', 'FL', 'FC'];
+            resultsContent.innerHTML = formulas.map(key => `
+                <div class="grid grid-cols-2 gap-2 items-center">
+                    <div style="color: #a8dadc;">${key}</div>
+                    <div class="font-medium" style="color: #6dd5fa;">${funcRes[key] !== undefined ? funcRes[key] : '--'}</div>
+                </div>
+            `).join('');
         }
+
 
         // 初始化公式输入框
         function initializeFormulaInputs() {
